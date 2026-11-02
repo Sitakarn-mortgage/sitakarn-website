@@ -10,9 +10,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X, ChevronDown, Phone } from 'lucide-react';
 import { cn } from '@/utils/cn';
 import { Logo } from '@/components/Logo/Logo';
-import { Button } from '@/components/Button/Button';
-import { navigationData } from '@/data/navigation';
-import { company } from '@/config/company';
+import { useCompanyInfo, useNavigation } from '@/hooks/useGlobalContent';
 import type { NavLink } from '@/types';
 
 interface NavbarProps {
@@ -20,6 +18,8 @@ interface NavbarProps {
 }
 
 export function Navbar({ className }: NavbarProps) {
+  const companyInfo = useCompanyInfo();
+  const navigation = useNavigation();
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [activeDropdown, setActiveDropdown] = useState<string | null>(null);
@@ -69,15 +69,15 @@ export function Navbar({ className }: NavbarProps) {
         <div className="hidden lg:block bg-brick-600 text-brick-100 text-xs">
           <div className="max-w-7xl mx-auto px-8 h-8 flex items-center justify-between">
             <span className="font-mono tracking-wide text-gold-200">
-              {company.fullName} — Est. {company.established}
+              {companyInfo.fullName} — Est. {companyInfo.established}
             </span>
             <a
-              href={`tel:${company.phone}`}
+              href={`tel:${companyInfo.phone}`}
               className="flex items-center gap-1.5 hover:text-gold-300 transition-colors"
-              aria-label={`Call us: ${company.phone}`}
+              aria-label={`Call us: ${companyInfo.phone}`}
             >
               <Phone size={12} aria-hidden="true" />
-              <span>{company.phone}</span>
+              <span>{companyInfo.phone}</span>
             </a>
           </div>
         </div>
@@ -93,7 +93,7 @@ export function Navbar({ className }: NavbarProps) {
 
             {/* Desktop links */}
             <div className="hidden lg:flex items-center gap-1">
-              {navigationData.links.map((link) => (
+              {navigation.links.map((link) => (
                 <DesktopNavItem
                   key={link.label}
                   link={link}
@@ -107,7 +107,7 @@ export function Navbar({ className }: NavbarProps) {
             {/* Desktop CTA */}
             <div className="hidden lg:flex items-center gap-3">
               <Link
-                to={navigationData.cta.href}
+                to={navigation.cta.href}
                 className={cn(
                   'inline-flex items-center px-5 py-2 text-sm font-semibold rounded',
                   'bg-gold-400 text-navy-800 hover:bg-gold-300',
@@ -115,7 +115,7 @@ export function Navbar({ className }: NavbarProps) {
                   'tracking-wide border border-gold-500'
                 )}
               >
-                {navigationData.cta.label}
+                {navigation.cta.label}
               </Link>
             </div>
 
@@ -176,7 +176,7 @@ export function Navbar({ className }: NavbarProps) {
 
               {/* Links */}
               <div className="px-4 py-6 flex flex-col gap-1">
-                {navigationData.links.map((link) => (
+                {navigation.links.map((link) => (
                   <MobileNavItem
                     key={link.label}
                     link={link}
@@ -190,18 +190,18 @@ export function Navbar({ className }: NavbarProps) {
               {/* Mobile CTA */}
               <div className="px-6 pb-8 mt-2">
                 <Link
-                  to={navigationData.cta.href}
+                  to={navigation.cta.href}
                   className="block w-full text-center py-3 px-6 bg-gold-400 text-navy-800 text-sm font-semibold rounded hover:bg-gold-300 border border-gold-500 transition-colors"
                 >
-                  {navigationData.cta.label}
+                  {navigation.cta.label}
                 </Link>
               </div>
 
               {/* Contact in drawer */}
               <div className="px-6 py-4 mt-auto border-t border-slate-100">
-                <a href={`tel:${company.phone}`} className="flex items-center gap-2 text-sm text-slate-600 hover:text-navy-700">
+                <a href={`tel:${companyInfo.phone}`} className="flex items-center gap-2 text-sm text-slate-600 hover:text-navy-700">
                   <Phone size={14} aria-hidden="true" />
-                  {company.phone}
+                  {companyInfo.phone}
                 </a>
               </div>
             </motion.div>

@@ -3,7 +3,6 @@
  */
 
 import React from 'react';
-import { Link } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { useSEO } from '@/hooks/useSEO';
 import { Container } from '@/components/Container/Container';

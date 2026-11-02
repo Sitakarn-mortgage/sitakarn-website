@@ -91,6 +91,7 @@ export interface BlogPost {
   slug: string;
   title: string;
   excerpt: string;
+  body?: string;
   category: BlogCategory;
   categoryLabel: string;
   author: string;
@@ -125,6 +126,7 @@ export interface Statistic {
 export interface Partner {
   id: string;
   name: string;
+  shortCode?: string;
   logoUrl: string;
   website?: string;
   type: 'certification' | 'association' | 'partner';
@@ -136,6 +138,7 @@ export interface HeroContent {
   eyebrow: string;
   headline: string;
   subheadline: string;
+  heroImageUrl?: string;
   primaryCTA: { label: string; href: string };
   secondaryCTA: { label: string; href: string };
 }
@@ -171,6 +174,8 @@ export interface FooterColumn {
 export interface FooterConfig {
   columns: FooterColumn[];
   certifications: string[];
+  newsletterTitle?: string;
+  newsletterDescription?: string;
 }
 
 // ─── Contact Form ─────────────────────────────────────────────────────────────
@@ -214,3 +219,118 @@ export interface PaginatedResponse<T> extends APIResponse<T[]> {
     totalPages: number;
   };
 }
+
+// ─── Company Info (Global Single Type) ────────────────────────────────────────
+export interface CompanyAddress {
+  street: string;
+  city: string;
+  province: string;
+  postalCode: string;
+  country: string;
+  full: string;
+}
+
+export interface OfficeHour {
+  days: string;
+  hours: string;
+}
+
+export interface SocialLinks {
+  facebook: string;
+  linkedin: string;
+  instagram: string;
+  tiktok: string;
+  youtube: string;
+  x: string;
+}
+
+export interface CompanyInfo {
+  name: string;
+  fullName: string;
+  tagline: string;
+  wordmarkSubtitle: string;
+  description: string;
+  logoUrl?: string;
+  faviconUrl?: string;
+  faviconMime?: string;
+  email: string;
+  emailSupport: string;
+  phone: string;
+  phoneAlt: string;
+  fax: string;
+  address: CompanyAddress;
+  maps: {
+    embedUrl: string;
+    directionsUrl: string;
+  };
+  officeHours: OfficeHour[];
+  social: SocialLinks;
+  taxId: string;
+  registrationNumber: string;
+  established: number;
+  copyright: string;
+}
+
+// ─── Extended Homepage & Page Single Types ────────────────────────────────────
+export interface SectionHeaderContent {
+  eyebrow: string;
+  title: string;
+  description?: string;
+}
+
+export interface HomepageBottomCTA {
+  headline: string;
+  description: string;
+  primaryCTA: { label: string; href: string };
+  secondaryCTA: { label: string; href: string };
+}
+
+export interface HomepageData {
+  hero: HeroContent;
+  sections: {
+    whoWeHelp: SectionHeaderContent;
+    services: SectionHeaderContent;
+    whyChooseUs: SectionHeaderContent;
+    process: SectionHeaderContent;
+    testimonials: SectionHeaderContent;
+    insights: SectionHeaderContent;
+  };
+  bottomCta: HomepageBottomCTA;
+}
+
+export interface ServicesPageData {
+  heroEyebrow: string;
+  heroTitle: string;
+  heroDescription: string;
+  heroImageUrl: string;
+  seoTitle: string;
+  seoDescription: string;
+}
+
+export interface TeamPageData {
+  heroEyebrow: string;
+  heroTitle: string;
+  heroDescription: string;
+  heroImageUrl: string;
+  leadershipEyebrow: string;
+  leadershipTitle: string;
+  consultantsEyebrow: string;
+  consultantsTitle: string;
+  seoTitle: string;
+  seoDescription: string;
+}
+
+export interface ContactPageData {
+  heroEyebrow: string;
+  heroTitle: string;
+  heroDescription: string;
+  heroImageUrl: string;
+  formTitle: string;
+  socialTitle: string;
+  socialDescription: string;
+  faqEyebrow: string;
+  faqTitle: string;
+  seoTitle: string;
+  seoDescription: string;
+}
+

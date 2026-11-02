@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { cn } from '@/utils/cn';
-import { company } from '@/config/company';
+import { useCompanyInfo } from '@/hooks/useGlobalContent';
 
 type SocialIconsTheme = 'light' | 'dark';
 type SocialIconsSize = 'sm' | 'md' | 'lg';
@@ -56,13 +56,15 @@ const buttonSizes: Record<SocialIconsSize, string> = {
 };
 
 export function SocialIcons({ theme = 'dark', size = 'md', className }: SocialIconsProps) {
+  const companyInfo = useCompanyInfo();
   const isDark = theme === 'dark';
   const px = iconSizes[size];
 
   return (
     <div className={cn('flex items-center gap-2', className)} aria-label="Social media links">
       {icons.map(({ key, icon: Icon, label }) => {
-        const href = company.social[key as keyof typeof company.social];
+        const href = companyInfo.social[key as keyof typeof companyInfo.social];
+        if (!href) return null;
         return (
           <a
             key={key}

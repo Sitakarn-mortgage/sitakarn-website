@@ -7,7 +7,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import { cn } from '@/utils/cn';
-import { company } from '@/config/company';
+import { useCompanyInfo } from '@/hooks/useGlobalContent';
 import logoImg from '@/assets/logo.png';
 
 type LogoTheme = 'light' | 'dark';
@@ -34,6 +34,7 @@ export function Logo({
   className,
   linkTo = '/',
 }: LogoProps) {
+  const companyInfo = useCompanyInfo();
   const isDark = theme === 'dark';
   const sizes  = sizeMap[size];
 
@@ -41,8 +42,8 @@ export function Logo({
     <div className={cn('flex items-center gap-2.5', className)}>
       {/* Official logo image */}
       <img
-        src={logoImg}
-        alt={`${company.name} logo`}
+        src={companyInfo.logoUrl || logoImg}
+        alt={`${companyInfo.name} logo`}
         className={cn('object-contain flex-shrink-0', sizes.img)}
         aria-hidden="true"
       />
@@ -57,7 +58,7 @@ export function Logo({
               isDark ? 'text-white' : 'text-navy-700'
             )}
           >
-            {company.name}
+            {companyInfo.name}
           </span>
           <span
             className={cn(
@@ -66,7 +67,7 @@ export function Logo({
               isDark ? 'text-white/50' : 'text-gold-600'
             )}
           >
-            Mortgage &amp; Finance
+            {companyInfo.wordmarkSubtitle || 'Mortgage & Finance'}
           </span>
         </div>
       )}
@@ -74,7 +75,7 @@ export function Logo({
   );
 
   return (
-    <Link to={linkTo} aria-label={`${company.name} — Go to homepage`}>
+    <Link to={linkTo} aria-label={`${companyInfo.name} — Go to homepage`}>
       {logoContent}
     </Link>
   );

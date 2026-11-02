@@ -15,13 +15,7 @@ interface TestimonialCardProps {
   className?: string;
 }
 
-const orgTypeLabels: Record<string, string> = {
-  cooperative: 'Cooperative',
-  sme: 'SME',
-  ngo: 'NGO',
-  government: 'Government',
-  other: 'Organization',
-};
+
 
 export function TestimonialCard({ testimonial, variant = 'default', className }: TestimonialCardProps) {
   return (

@@ -42,4 +42,7 @@ export const footerData: FooterConfig = {
     'Old Baneshwor, KMC-31, Kathmandu, Nepal',
     '☎ +977-985-109-3898',
   ],
+  newsletterTitle: 'Stay Informed',
+  newsletterDescription:
+    'Receive our monthly insights on cooperative finance, tax updates, and regulatory changes.',
 };

@@ -9,11 +9,12 @@ import { ArrowRight, FileText } from 'lucide-react';
 import * as LucideIcons from 'lucide-react';
 import { useSEO } from '@/hooks/useSEO';
 import { ServicesAPI } from '@/api/services';
+import { PagesAPI, defaultServicesPageData } from '@/api/pages';
+import { PageHero } from '@/components/PageHero/PageHero';
 import { Container } from '@/components/Container/Container';
 import { SectionWrapper } from '@/components/SectionWrapper/SectionWrapper';
 import { SectionTitle } from '@/components/SectionTitle/SectionTitle';
 import { ServiceCard } from '@/components/ServiceCard/ServiceCard';
-import { Divider } from '@/components/Divider/Divider';
 import { fadeUp, staggerContainer } from '@/theme/animations';
 import type { ServiceCategory } from '@/types';
 
@@ -26,9 +27,17 @@ const PILLAR_ACCENTS = [
 ];
 
 export function Services() {
+  const { data: pageRes } = useQuery({
+    queryKey: ['servicesPage'],
+    queryFn: PagesAPI.getServicesPage,
+    placeholderData: { data: defaultServicesPageData, success: true, timestamp: '' },
+  });
+  const page = pageRes?.data ?? defaultServicesPageData;
+
   useSEO({
-    title: 'Our Services',
-    description: 'Professional real estate brokerage, property due diligence, and financial advisory services for cooperatives, buyers, sellers, and institutions across Nepal.',
+    title: page.seoTitle,
+    description: page.seoDescription,
+    ogImage: page.heroImageUrl,
   });
 
   const { data: servicesRes } = useQuery({ queryKey: ['services'], queryFn: ServicesAPI.getAll });
@@ -37,44 +46,27 @@ export function Services() {
   return (
     <>
       {/* ── Hero ─────────────────────────────────────────────────────────── */}
-      <SectionWrapper padding="xl" background="offwhite" className="pt-32 pb-20 border-b border-slate-200">
-        <Container>
-          <div className="max-w-3xl">
-            <motion.div initial="hidden" animate="visible" variants={staggerContainer} className="flex flex-col gap-6">
-              <motion.div variants={fadeUp} className="flex items-center gap-3">
-                <Divider />
-                <span className="eyebrow">Our Capabilities</span>
-              </motion.div>
-              <motion.h1
-                variants={fadeUp}
-                className="font-display font-bold text-4xl md:text-5xl text-navy-700 leading-tight"
-              >
-                Integrated Property &amp; Financial Services
-              </motion.h1>
-
-              <motion.p variants={fadeUp} className="text-lg text-slate-600 leading-relaxed">
-                Sitakarn Mortgage Pvt. Ltd. offers four integrated pillars of professional
-                services, combining expertise across real estate, property management,
-                retirement and financial planning, and professional advisory services.
-              </motion.p>
-            </motion.div>
-          </div>
-
-          {/* ── Pillar Cards ─────────────────────────────────────────────── */}
-          {categories.length > 0 && (
-            <motion.div
-              initial="hidden"
-              animate="visible"
-              variants={staggerContainer}
-              className="mt-14 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5"
-            >
-              {categories.map((category, index) => (
-                <PillarCard key={category.id} category={category} index={index} />
-              ))}
-            </motion.div>
-          )}
-        </Container>
-      </SectionWrapper>
+      <PageHero
+        eyebrow={page.heroEyebrow}
+        title={page.heroTitle}
+        description={page.heroDescription}
+        imageUrl={page.heroImageUrl}
+        imageAlt={page.heroTitle}
+      >
+        {/* ── Pillar Cards ─────────────────────────────────────────────── */}
+        {categories.length > 0 && (
+          <motion.div
+            initial="hidden"
+            animate="visible"
+            variants={staggerContainer}
+            className="mt-14 grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5"
+          >
+            {categories.map((category, index) => (
+              <PillarCard key={category.id} category={category} index={index} />
+            ))}
+          </motion.div>
+        )}
+      </PageHero>
 
       {/* ── Services List ────────────────────────────────────────────────── */}
       <div className="bg-white">
@@ -106,7 +98,7 @@ export function Services() {
                     variants={staggerContainer}
                     className="grid grid-cols-1 md:grid-cols-2 gap-6"
                   >
-                    {category.services.map((service) => (
+                    {(category.services ?? []).map((service) => (
                       <ServiceCard key={service.id} service={service} variant="default" />
                     ))}
                   </motion.div>
@@ -138,8 +130,8 @@ function PillarCard({ category, index }: PillarCardProps) {
       whileHover={{ y: -4, transition: { duration: 0.2 } }}
       className={`
         group relative flex flex-col gap-4 rounded-xl border p-6
-        bg-white hover:shadow-lg
-        transition-shadow duration-300
+        bg-white/95 backdrop-blur-sm hover:shadow-xl hover:bg-white
+        transition-all duration-300
         ${accent.border}
         cursor-pointer no-underline
       `}

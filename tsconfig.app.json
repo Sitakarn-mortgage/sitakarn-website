@@ -17,7 +17,6 @@
     "jsx": "react-jsx",
 
     /* Path aliases */
-    "baseUrl": ".",
     "paths": {
       "@/*": ["./src/*"]
     },
@@ -27,8 +26,7 @@
     "noUnusedParameters": false,
     "erasableSyntaxOnly": true,
     "noFallthroughCasesInSwitch": true,
-    "strict": true,
-    "ignoreDeprecations": "6.0"
+    "strict": true
   },
   "include": ["src"]
 }

@@ -7,17 +7,26 @@ import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { useSEO } from '@/hooks/useSEO';
 import { TeamAPI } from '@/api/team';
+import { PagesAPI, defaultTeamPageData } from '@/api/pages';
+import { PageHero } from '@/components/PageHero/PageHero';
 import { Container } from '@/components/Container/Container';
 import { SectionWrapper } from '@/components/SectionWrapper/SectionWrapper';
 import { SectionTitle } from '@/components/SectionTitle/SectionTitle';
 import { TeamCard } from '@/components/TeamCard/TeamCard';
-import { Divider } from '@/components/Divider/Divider';
-import { fadeUp, staggerContainer } from '@/theme/animations';
+import { staggerContainer } from '@/theme/animations';
 
 export function Team() {
+  const { data: pageRes } = useQuery({
+    queryKey: ['teamPage'],
+    queryFn: PagesAPI.getTeamPage,
+    placeholderData: { data: defaultTeamPageData, success: true, timestamp: '' },
+  });
+  const page = pageRes?.data ?? defaultTeamPageData;
+
   useSEO({
-    title: 'Our Team',
-    description: 'Meet our leadership and team of certified financial consultants, CPAs, and cooperative advisors.',
+    title: page.seoTitle,
+    description: page.seoDescription,
+    ogImage: page.heroImageUrl,
   });
 
   const { data: leadershipRes } = useQuery({ queryKey: ['team', 'leadership'], queryFn: () => TeamAPI.getByRole('leadership') });
@@ -25,32 +34,21 @@ export function Team() {
 
   return (
     <>
-      <SectionWrapper padding="xl" background="navy" className="pt-32 pb-20">
-        <Container>
-          <div className="max-w-3xl text-center mx-auto">
-            <motion.div initial="hidden" animate="visible" variants={staggerContainer} className="flex flex-col items-center gap-6">
-              <motion.div variants={fadeUp} className="flex items-center gap-3">
-                <Divider theme="dark" />
-                <span className="eyebrow text-white/70">Our People</span>
-                <Divider theme="dark" />
-              </motion.div>
-              <motion.h1 variants={fadeUp} className="font-display font-bold text-4xl md:text-5xl text-white leading-tight">
-                Expertise You Can Trust
-              </motion.h1>
-              <motion.p variants={fadeUp} className="text-lg text-white/60 leading-relaxed">
-                Our practice is led by Certified Public Accountants (CPAs), former revenue department officers, and registered cooperative advisors.
-              </motion.p>
-            </motion.div>
-          </div>
-        </Container>
-      </SectionWrapper>
+      <PageHero
+        align="center"
+        eyebrow={page.heroEyebrow}
+        title={page.heroTitle}
+        description={page.heroDescription}
+        imageUrl={page.heroImageUrl}
+        imageAlt={page.heroTitle}
+      />
 
       {/* Leadership */}
       <SectionWrapper padding="none" background="white">
         {/* Section header — contained */}
         <div className="py-16 md:py-20">
           <Container>
-            <SectionTitle eyebrow="Partners" title="Leadership Team" />
+            <SectionTitle eyebrow={page.leadershipEyebrow} title={page.leadershipTitle} />
           </Container>
         </div>
 
@@ -61,7 +59,7 @@ export function Team() {
           variants={staggerContainer}
           className="flex flex-col"
         >
-          {leadershipRes?.data.map((member, i) => (
+          {(leadershipRes?.data ?? []).map((member, i) => (
             <TeamCard key={member.id} member={member} variant="leadership" index={i} />
           ))}
         </motion.div>
@@ -70,7 +68,7 @@ export function Team() {
       {/* Consultants */}
       <SectionWrapper padding="lg" background="offwhite">
         <Container>
-          <SectionTitle eyebrow="Professionals" title="Consultants & Specialists" className="mb-12" />
+          <SectionTitle eyebrow={page.consultantsEyebrow} title={page.consultantsTitle} className="mb-12" />
           <motion.div
             initial="hidden"
             whileInView="visible"
@@ -78,7 +76,7 @@ export function Team() {
             variants={staggerContainer}
             className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6"
           >
-            {consultantsRes?.data.map((member) => (
+            {(consultantsRes?.data ?? []).map((member) => (
               <TeamCard key={member.id} member={member} variant="consultant" />
             ))}
           </motion.div>

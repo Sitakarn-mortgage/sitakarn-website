@@ -6,16 +6,15 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Mail, Phone, MapPin, ArrowRight, CheckCircle } from 'lucide-react';
-import { motion } from 'framer-motion';
 import { cn } from '@/utils/cn';
 import { Logo } from '@/components/Logo/Logo';
 import { SocialIcons } from '@/components/SocialIcons/SocialIcons';
-import { company } from '@/config/company';
-import { footerData } from '@/data/footer';
+import { useCompanyInfo, useFooter } from '@/hooks/useGlobalContent';
 import { ContactAPI } from '@/api/contact';
-import { staggerContainer, staggerItem } from '@/theme/animations';
 
 export function Footer() {
+  const companyInfo = useCompanyInfo();
+  const footer = useFooter();
   const [email, setEmail] = useState('');
   const [newsletterState, setNewsletterState] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
 
@@ -42,28 +41,28 @@ export function Footer() {
           <div className="lg:col-span-2 flex flex-col gap-6">
             <Logo theme="dark" size="md" />
             <p className="text-white/55 text-sm leading-relaxed max-w-xs">
-              {company.description}
+              {companyInfo.description}
             </p>
 
             {/* Contact info */}
             <address className="not-italic flex flex-col gap-3">
               <a
-                href={`tel:${company.phone}`}
+                href={`tel:${companyInfo.phone}`}
                 className="flex items-center gap-2.5 text-sm text-white/60 hover:text-white transition-colors"
               >
                 <Phone size={14} className="text-white/50 flex-shrink-0" aria-hidden="true" />
-                {company.phone}
+                {companyInfo.phone}
               </a>
               <a
-                href={`mailto:${company.email}`}
+                href={`mailto:${companyInfo.email}`}
                 className="flex items-center gap-2.5 text-sm text-white/60 hover:text-white transition-colors"
               >
                 <Mail size={14} className="text-white/50 flex-shrink-0" aria-hidden="true" />
-                {company.email}
+                {companyInfo.email}
               </a>
               <div className="flex items-start gap-2.5 text-sm text-white/60">
                 <MapPin size={14} className="text-white/50 flex-shrink-0 mt-0.5" aria-hidden="true" />
-                <span>{company.address.full}</span>
+                <span>{companyInfo.address.full}</span>
               </div>
             </address>
 
@@ -71,7 +70,7 @@ export function Footer() {
           </div>
 
           {/* Link columns */}
-          {footerData.columns.map((column) => (
+          {footer.columns.map((column) => (
             <div key={column.title} className="flex flex-col gap-4">
               {/* Column title with double rule */}
               <div className="flex flex-col gap-2">
@@ -106,10 +105,10 @@ export function Footer() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
             <div>
               <h3 className="font-display text-lg text-white font-semibold mb-2">
-                Stay Informed
+                {footer.newsletterTitle || 'Stay Informed'}
               </h3>
               <p className="text-sm text-white/50">
-                Receive our monthly insights on cooperative finance, tax updates, and regulatory changes.
+                {footer.newsletterDescription || 'Receive our monthly insights on cooperative finance, tax updates, and regulatory changes.'}
               </p>
             </div>
             <form onSubmit={handleNewsletter} noValidate>
@@ -161,13 +160,31 @@ export function Footer() {
           </div>
         </div>
 
+        {/* Legal certifications / accreditations */}
+        {footer.certifications && footer.certifications.length > 0 && (
+          <div className="mt-10 pt-6 border-t border-white/10 flex flex-wrap items-center gap-x-6 gap-y-2">
+            {footer.certifications.map((cert) => (
+              <span key={cert} className="text-xs text-white/35 font-mono">
+                {cert}
+              </span>
+            ))}
+          </div>
+        )}
+
         {/* Bottom bar */}
-        <div className="mt-10 pt-6 border-t border-white/10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <p className="text-xs text-white/40">{company.copyright}</p>
+        <div
+          className={cn(
+            'pt-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4',
+            footer.certifications && footer.certifications.length > 0
+              ? 'mt-4 border-t border-white/5'
+              : 'mt-10 border-t border-white/10'
+          )}
+        >
+          <p className="text-xs text-white/40">{companyInfo.copyright}</p>
           <div className="flex flex-wrap gap-x-4 gap-y-1">
             <a href="/privacy" className="text-xs text-white/40 hover:text-white transition-colors">Privacy Policy</a>
             <a href="/terms" className="text-xs text-white/40 hover:text-white transition-colors">Terms of Service</a>
-            <span className="text-xs text-white/30">Tax ID: {company.taxId}</span>
+            {companyInfo.taxId && <span className="text-xs text-white/30">Tax ID: {companyInfo.taxId}</span>}
           </div>
         </div>
       </div>

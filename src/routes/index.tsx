@@ -11,6 +11,8 @@ import { About } from '@/pages/About';
 import { Services } from '@/pages/Services';
 import { Team } from '@/pages/Team';
 import { Contact } from '@/pages/Contact';
+import { Insights } from '@/pages/Insights';
+import { InsightDetail } from '@/pages/InsightDetail';
 import { NotFound } from '@/pages/NotFound';
 
 export const router = createBrowserRouter([
@@ -37,6 +39,14 @@ export const router = createBrowserRouter([
       {
         path: 'contact',
         element: <Contact />,
+      },
+      {
+        path: 'insights',
+        element: <Insights />,
+      },
+      {
+        path: 'insights/:slug',
+        element: <InsightDetail />,
       },
       {
         path: '*',

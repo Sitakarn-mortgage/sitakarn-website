@@ -7,9 +7,14 @@ import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
 import { ArrowRight } from 'lucide-react';
 import { useSEO } from '@/hooks/useSEO';
-import { HomepageAPI } from '@/api/homepage';
+import { defaultHomepageData, HomepageAPI } from '@/api/homepage';
 import { ServicesAPI } from '@/api/services';
 import { TestimonialsAPI } from '@/api/testimonials';
+import { whoWeHelpData, whyChooseUsData, processStepsData } from '@/data/homepage';
+import { statisticsData } from '@/data/statistics';
+import { testimonialsData } from '@/data/testimonials';
+import { blogData } from '@/data/blog';
+import { servicesData } from '@/data/services';
 import { Container } from '@/components/Container/Container';
 import { SectionWrapper } from '@/components/SectionWrapper/SectionWrapper';
 import { SectionTitle } from '@/components/SectionTitle/SectionTitle';
@@ -21,9 +26,9 @@ import { Timeline } from '@/components/Timeline/Timeline';
 import { TestimonialCard } from '@/components/TestimonialCard/TestimonialCard';
 import { InsightCard } from '@/components/InsightCard/InsightCard';
 import { Divider } from '@/components/Divider/Divider';
-import { fadeUp, staggerContainer, staggerItem } from '@/theme/animations';
+import { fadeUp, staggerContainer } from '@/theme/animations';
 import { images } from '@/assets/images';
-import { blogData } from '@/data/blog';
+import { BlogAPI } from '@/api/blog';
 
 export function Home() {
   useSEO({
@@ -31,15 +36,49 @@ export function Home() {
     description: 'Nepal\'s pioneering professional real estate brokerage and financial advisory firm — transparent, technology-enabled, and legally compliant services.',
   });
 
-  const { data: heroRes } = useQuery({ queryKey: ['hero'], queryFn: HomepageAPI.getHero });
-  const { data: whoWeHelpRes } = useQuery({ queryKey: ['whoWeHelp'], queryFn: HomepageAPI.getWhoWeHelp });
-  const { data: servicesRes } = useQuery({ queryKey: ['servicesFeatured'], queryFn: () => ServicesAPI.getFeatured(3) });
-  const { data: whyChooseUsRes } = useQuery({ queryKey: ['whyChooseUs'], queryFn: HomepageAPI.getWhyChooseUs });
-  const { data: statsRes } = useQuery({ queryKey: ['statistics'], queryFn: HomepageAPI.getStatistics });
-  const { data: processRes } = useQuery({ queryKey: ['process'], queryFn: HomepageAPI.getProcessSteps });
-  const { data: testimonialsRes } = useQuery({ queryKey: ['testimonialsFeatured'], queryFn: TestimonialsAPI.getFeatured });
+  const { data: homepageRes } = useQuery({
+    queryKey: ['homepage'],
+    queryFn: HomepageAPI.getPage,
+    placeholderData: { data: defaultHomepageData, success: true, timestamp: '' },
+  });
+  const { data: whoWeHelpRes } = useQuery({
+    queryKey: ['whoWeHelp'],
+    queryFn: HomepageAPI.getWhoWeHelp,
+    placeholderData: { data: whoWeHelpData, success: true, timestamp: '' },
+  });
+  const { data: servicesRes } = useQuery({
+    queryKey: ['servicesFeatured'],
+    queryFn: () => ServicesAPI.getFeatured(3),
+    placeholderData: { data: servicesData.flatMap((c) => c.services).slice(0, 3), success: true, timestamp: '' },
+  });
+  const { data: whyChooseUsRes } = useQuery({
+    queryKey: ['whyChooseUs'],
+    queryFn: HomepageAPI.getWhyChooseUs,
+    placeholderData: { data: whyChooseUsData, success: true, timestamp: '' },
+  });
+  const { data: statsRes } = useQuery({
+    queryKey: ['statistics'],
+    queryFn: HomepageAPI.getStatistics,
+    placeholderData: { data: statisticsData, success: true, timestamp: '' },
+  });
+  const { data: processRes } = useQuery({
+    queryKey: ['process'],
+    queryFn: HomepageAPI.getProcessSteps,
+    placeholderData: { data: processStepsData, success: true, timestamp: '' },
+  });
+  const { data: testimonialsRes } = useQuery({
+    queryKey: ['testimonialsFeatured'],
+    queryFn: TestimonialsAPI.getFeatured,
+    placeholderData: { data: testimonialsData.filter((t) => t.featured).slice(0, 3), success: true, timestamp: '' },
+  });
+  const { data: blogRes } = useQuery({
+    queryKey: ['blogFeatured'],
+    queryFn: () => BlogAPI.getFeatured(3),
+    placeholderData: { data: blogData.slice(0, 3), success: true, timestamp: '' },
+  });
 
-  const hero = heroRes?.data;
+  const page = homepageRes?.data ?? defaultHomepageData;
+  const { hero, sections, bottomCta } = page;
 
   return (
     <>
@@ -92,7 +131,7 @@ export function Home() {
             >
               <div className="absolute inset-0 bg-gradient-to-br from-brick-900/20 via-transparent to-navy-900/20 mix-blend-multiply z-10" />
               <img
-                src={images.hero.main}
+                src={hero.heroImageUrl || images.hero.main}
                 alt="Financial consulting professionals in a meeting"
                 className="w-full h-full object-cover"
                 fetchPriority="high"
@@ -108,9 +147,9 @@ export function Home() {
       <SectionWrapper padding="lg" background="white">
         <Container>
           <SectionTitle
-            eyebrow="Target Audience"
-            title="Who We Serve"
-            description="From property buyers and sellers to cooperatives, banks, and SMEs — Sitakarn delivers tailored real estate brokerage and financial advisory solutions across Nepal."
+            eyebrow={sections.whoWeHelp.eyebrow}
+            title={sections.whoWeHelp.title}
+            description={sections.whoWeHelp.description}
             align="center"
             className="mx-auto mb-16"
           />
@@ -121,7 +160,7 @@ export function Home() {
             variants={staggerContainer}
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12"
           >
-            {whoWeHelpRes?.data.map((item) => (
+            {(whoWeHelpRes?.data ?? []).map((item) => (
               <FeatureCard
                 key={item.id}
                 title={item.title}
@@ -138,9 +177,9 @@ export function Home() {
         <Container>
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-12">
             <SectionTitle
-              eyebrow="Our Expertise"
-              title="Comprehensive Property & Financial Services"
-              description="From verified property listings and buyer matching to financial advisory for cooperatives — Sitakarn covers the complete lifecycle."
+              eyebrow={sections.services.eyebrow}
+              title={sections.services.title}
+              description={sections.services.description}
             />
             <Button as="a" href="/services" variant="outline" rightIcon={<ArrowRight size={16} />} className="flex-shrink-0">
               View All Services
@@ -153,7 +192,7 @@ export function Home() {
             variants={staggerContainer}
             className="grid grid-cols-1 md:grid-cols-3 gap-6"
           >
-            {servicesRes?.data.map((service) => (
+            {(servicesRes?.data ?? []).map((service) => (
               <ServiceCard key={service.id} service={service} />
             ))}
           </motion.div>
@@ -170,9 +209,9 @@ export function Home() {
             <div>
               <SectionTitle
                 theme="dark"
-                eyebrow="Why Sitakarn"
-                title="Nepal's Professional Property & Financial Partner"
-                description="Established in 2003, Sitakarn combines pioneering real estate brokerage with expert financial advisory — built on transparency, compliance, and technology-enabled service delivery."
+                eyebrow={sections.whyChooseUs.eyebrow}
+                title={sections.whyChooseUs.title}
+                description={sections.whyChooseUs.description}
                 className="mb-12"
               />
               <motion.div
@@ -182,7 +221,7 @@ export function Home() {
                 variants={staggerContainer}
                 className="flex flex-col gap-8"
               >
-                {whyChooseUsRes?.data.map((item) => (
+                {(whyChooseUsRes?.data ?? []).map((item) => (
                   <div key={item.id} className="flex gap-4">
                     <div className="flex-shrink-0 mt-1 w-10 h-10 rounded bg-white/10 text-white flex items-center justify-center">
                       <div className="w-2 h-2 rounded-full bg-brick-300" />
@@ -205,7 +244,7 @@ export function Home() {
                 variants={staggerContainer}
                 className="grid grid-cols-1 sm:grid-cols-2 gap-px bg-white/10 rounded overflow-hidden"
               >
-                {statsRes?.data.map((stat) => (
+                {(statsRes?.data ?? []).map((stat) => (
                   <div key={stat.id} className="bg-navy-800">
                     <StatisticCard stat={stat} theme="dark" />
                   </div>
@@ -222,9 +261,9 @@ export function Home() {
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8">
             <div className="lg:col-span-5 lg:sticky lg:top-32 self-start">
               <SectionTitle
-                eyebrow="How We Work"
-                title="Our Structured Process"
-                description="From initial assessment and property verification to title transfer and compliance — our 20-step transaction and advisory methodology delivers measurable, legally compliant results."
+                eyebrow={sections.process.eyebrow}
+                title={sections.process.title}
+                description={sections.process.description}
               />
             </div>
             <div className="lg:col-span-6 lg:col-start-7">
@@ -238,8 +277,9 @@ export function Home() {
       <SectionWrapper padding="lg" background="offwhite">
         <Container>
           <SectionTitle
-            eyebrow="Client Success"
-            title="Trusted by Leaders"
+            eyebrow={sections.testimonials.eyebrow}
+            title={sections.testimonials.title}
+            description={sections.testimonials.description}
             align="center"
             className="mx-auto mb-16"
           />
@@ -250,7 +290,7 @@ export function Home() {
             variants={staggerContainer}
             className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
           >
-            {testimonialsRes?.data.map((testimonial) => (
+            {(testimonialsRes?.data ?? []).map((testimonial) => (
               <TestimonialCard key={testimonial.id} testimonial={testimonial} />
             ))}
           </motion.div>
@@ -262,11 +302,11 @@ export function Home() {
         <Container>
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 mb-12">
             <SectionTitle
-              eyebrow="Resources & Insights"
-              title="Latest Perspectives"
-              description="Stay informed with our analysis of regulatory changes, tax updates, and cooperative finance best practices."
+              eyebrow={sections.insights.eyebrow}
+              title={sections.insights.title}
+              description={sections.insights.description}
             />
-            <Button variant="outline" rightIcon={<ArrowRight size={16} />} className="flex-shrink-0" disabled>
+            <Button as="a" href="/insights" variant="outline" rightIcon={<ArrowRight size={16} />} className="flex-shrink-0">
               View All Articles
             </Button>
           </div>
@@ -277,7 +317,7 @@ export function Home() {
             variants={staggerContainer}
             className="grid grid-cols-1 md:grid-cols-3 gap-6"
           >
-            {blogData.slice(0, 3).map((post) => (
+            {(blogRes?.data ?? []).map((post) => (
               <InsightCard key={post.id} post={post} />
             ))}
           </motion.div>
@@ -291,17 +331,17 @@ export function Home() {
         <div className="absolute inset-0 opacity-10 bg-[radial-gradient(circle_at_30%_50%,_rgba(212,117,117,0.3)_0%,_transparent_60%)]" aria-hidden="true" />
         <Container className="relative z-10 text-center">
           <h2 className="font-display text-3xl md:text-5xl font-bold text-white mb-6">
-            Ready to buy, sell, or strengthen your financial foundation?
+            {bottomCta.headline}
           </h2>
           <p className="text-white/70 text-lg mb-10 max-w-2xl mx-auto">
-            Contact us for a complimentary initial consultation. Whether you are buying or selling property, or strengthening a financial institution, we are here to help.
+            {bottomCta.description}
           </p>
           <div className="flex flex-wrap justify-center gap-4">
-            <Button as="a" href="/contact" size="lg" className="bg-white text-brick-700 hover:bg-brick-50 border border-white/30">
-              Book a Consultation
+            <Button as="a" href={bottomCta.primaryCTA.href} size="lg" className="bg-white text-brick-700 hover:bg-brick-50 border border-white/30">
+              {bottomCta.primaryCTA.label}
             </Button>
-            <Button as="a" href="/services" className="bg-white/15 text-white hover:bg-white/25 border border-white/30 backdrop-blur-sm" size="lg">
-              Explore Services
+            <Button as="a" href={bottomCta.secondaryCTA.href} className="bg-white/15 text-white hover:bg-white/25 border border-white/30 backdrop-blur-sm" size="lg">
+              {bottomCta.secondaryCTA.label}
             </Button>
           </div>
         </Container>
