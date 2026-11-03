@@ -1,21 +1,18 @@
 /**
  * TeamCard Component
- * Displays a team member with photo, name, title, bio, and LinkedIn.
+ * Displays a team member with photo, name, title, bio, qualifications, and contact links.
+ * Clean, restrained layout adhering strictly to the baseline UI principles.
  */
 
 import React, { useState } from 'react';
-import { Mail } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '@/utils/cn';
 import { staggerItem } from '@/theme/animations';
 import { getInitials } from '@/utils/format';
+import { AppIcon } from '@/components/AppIcon/AppIcon';
 import type { TeamMember } from '@/types';
 
-const SvgLinkedin = ({ size }: { size: number }) => (
-  <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path><rect x="2" y="9" width="4" height="12"></rect><circle cx="4" cy="4" r="2"></circle></svg>
-);
-
-interface TeamCardProps {
+export interface TeamCardProps {
   member: TeamMember;
   variant?: 'leadership' | 'consultant';
   /** Used by leadership variant to alternate layout direction & colour */
@@ -23,33 +20,51 @@ interface TeamCardProps {
   className?: string;
 }
 
-export function TeamCard({ member, variant = 'consultant', index = 0, className }: TeamCardProps) {
+/**
+ * Formats a qualification string cleanly without cutting multi-word degrees
+ * down to a single generic word like "Master" or "Bachelor".
+ */
+function formatQualification(q: string): string {
+  const trimmed = q.trim();
+  const parenMatch = trimmed.match(/\(([^)]+)\)/);
+  if (parenMatch && parenMatch[1].length <= 14 && trimmed.length > 28) {
+    return parenMatch[1];
+  }
+  if (trimmed.length <= 30) {
+    return trimmed;
+  }
+  return `${trimmed.slice(0, 28)}…`;
+}
+
+export function TeamCard({
+  member,
+  variant = 'consultant',
+  index = 0,
+  className,
+}: TeamCardProps) {
   const [imgError, setImgError] = useState(false);
 
-  /* ── Leadership: full-bleed cinematic row ───────────────────────────── */
+  /* ── Leadership: full-bleed alternating row ─────────────────────────── */
   if (variant === 'leadership') {
     const isEven = index % 2 === 0;
-    // Even rows: navy bg, image right. Odd rows: brick bg, image left.
-    const bgClass   = isEven ? 'bg-navy-700'  : 'bg-brick-600';
-    const textColor = 'text-white';
-    const subColor  = isEven ? 'text-white/60' : 'text-white/60';
-    const accentColor = isEven ? 'text-[#C9A84C]' : 'text-white/80';
-    const badgeBg   = isEven ? 'bg-white/10 text-white/80' : 'bg-white/15 text-white/80';
-    const tagBg     = isEven ? 'bg-white/10 text-white/70 border border-white/15' : 'bg-white/15 text-white/70 border border-white/20';
-    const iconHover = isEven ? 'hover:bg-white/15 hover:text-white' : 'hover:bg-white/20 hover:text-white';
+    // Even rows: navy bg, image left. Odd rows: brick bg, image right.
+    const bgClass = isEven ? 'bg-navy-700' : 'bg-brick-700';
+    // Strict Gold Rule: on navy-700 use brick-200, on brick-700 use white/90 (never gold on navy)
+    const titleColor = isEven ? 'text-brick-200' : 'text-white/90';
 
     return (
       <motion.article
         variants={staggerItem}
         className={cn(bgClass, 'relative overflow-hidden', className)}
       >
-        <div className={cn(
-          'flex min-h-[420px] md:min-h-[480px]',
-          isEven ? 'flex-col md:flex-row' : 'flex-col md:flex-row-reverse',
-        )}>
-
-          {/* Photo — bleeds to edge */}
-          <div className="relative w-full md:w-[45%] shrink-0 min-h-[320px] md:min-h-0 overflow-hidden">
+        <div
+          className={cn(
+            'flex min-h-[420px] md:min-h-[480px]',
+            isEven ? 'flex-col md:flex-row' : 'flex-col md:flex-row-reverse'
+          )}
+        >
+          {/* Portrait — no gradient overlay */}
+          <div className="relative w-full md:w-[43%] shrink-0 aspect-[4/3] md:aspect-auto overflow-hidden bg-navy-900">
             {!imgError ? (
               <img
                 src={member.imageUrl}
@@ -65,75 +80,77 @@ export function TeamCard({ member, variant = 'consultant', index = 0, className 
                 </span>
               </div>
             )}
-            {/* Gradient bleed toward content side */}
-            <div className={cn(
-              'absolute inset-0',
-              isEven
-                ? 'bg-gradient-to-r from-transparent via-transparent to-navy-700/60 md:to-navy-700/80'
-                : 'bg-gradient-to-l from-transparent via-transparent to-brick-600/60 md:to-brick-600/80',
-            )} />
           </div>
 
           {/* Content */}
-          <div className="relative flex flex-col justify-center gap-5 px-8 py-12 md:px-14 md:py-16 flex-1">
-            {/* Decorative large initial */}
-            <span className="absolute top-6 right-8 font-display text-[8rem] font-bold leading-none text-white/[0.04] select-none pointer-events-none">
-              {member.name.charAt(0)}
-            </span>
-
-            {/* Eyebrow */}
-            <p className={cn('text-xs font-mono uppercase tracking-widest', subColor)}>
+          <div className="flex flex-col justify-center gap-5 px-6 py-10 sm:px-10 sm:py-12 md:px-14 md:py-16 flex-1">
+            {/* Department (text-sm text-white/70, no uppercase) */}
+            <p className="text-sm text-white/70">
               {member.department}
             </p>
 
             {/* Name + title */}
             <div>
-              <h2 className={cn('font-display font-bold text-3xl md:text-4xl leading-tight', textColor)}>
+              <h2 className="font-display font-bold text-2xl sm:text-3xl md:text-4xl text-white leading-tight">
                 {member.name}
               </h2>
-              <p className={cn('text-lg font-medium mt-1', accentColor)}>{member.title}</p>
+              <p className={cn('text-base sm:text-lg font-medium mt-1.5', titleColor)}>
+                {member.title}
+              </p>
             </div>
 
             {/* Bio */}
             {member.bio && (
-              <p className={cn('text-sm md:text-base leading-relaxed max-w-prose', subColor)}>
+              <p className="text-sm md:text-base leading-relaxed text-white/75 max-w-prose">
                 {member.bio}
               </p>
             )}
 
             {/* Qualifications */}
-            <div className="flex flex-wrap gap-2">
-              {member.qualifications.slice(0, 3).map((q) => (
-                <span key={q} className={cn('text-xs px-3 py-1 rounded-full font-mono', tagBg)}>
-                  {q.split('(')[1]?.replace(')', '') || q.split(' ')[0]}
-                </span>
-              ))}
-            </div>
+            {member.qualifications && member.qualifications.length > 0 && (
+              <div className="flex flex-wrap gap-2">
+                {member.qualifications.map((q) => (
+                  <span
+                    key={q}
+                    title={q}
+                    className="border border-white/30 rounded px-3 py-1 text-xs text-white/85"
+                  >
+                    {formatQualification(q)}
+                  </span>
+                ))}
+              </div>
+            )}
 
-            {/* Years badge + links */}
-            <div className="flex items-center gap-4 mt-1">
-              <span className={cn('text-xs font-mono px-3 py-1.5 rounded-full', badgeBg)}>
-                {member.yearsOfExperience} yrs experience
-              </span>
-              {member.linkedin && (
-                <a
-                  href={member.linkedin}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label={`${member.name} on LinkedIn`}
-                  className={cn('w-9 h-9 flex items-center justify-center rounded-full text-white/50 transition-colors', iconHover)}
-                >
-                  <SvgLinkedin size={17} />
-                </a>
+            {/* Years of experience + bare icon links */}
+            <div className="flex flex-wrap items-center gap-6 pt-3 mt-1 border-t border-white/15">
+              {member.yearsOfExperience != null && (
+                <span className="text-sm text-white/70">
+                  {member.yearsOfExperience} years of experience
+                </span>
               )}
-              {member.email && (
-                <a
-                  href={`mailto:${member.email}`}
-                  aria-label={`Email ${member.name}`}
-                  className={cn('w-9 h-9 flex items-center justify-center rounded-full text-white/50 transition-colors', iconHover)}
-                >
-                  <Mail size={17} aria-hidden="true" />
-                </a>
+              {(member.linkedin || member.email) && (
+                <div className="flex items-center gap-1">
+                  {member.linkedin && (
+                    <a
+                      href={member.linkedin}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={`${member.name} on LinkedIn`}
+                      className="size-11 flex items-center justify-center text-white/70 hover:text-white transition-colors"
+                    >
+                      <AppIcon name="LinkedinLogo" size={20} weight="regular" />
+                    </a>
+                  )}
+                  {member.email && (
+                    <a
+                      href={`mailto:${member.email}`}
+                      aria-label={`Email ${member.name}`}
+                      className="size-11 flex items-center justify-center text-white/70 hover:text-white transition-colors"
+                    >
+                      <AppIcon name="EnvelopeSimple" size={20} weight="regular" />
+                    </a>
+                  )}
+                </div>
               )}
             </div>
           </div>
@@ -142,84 +159,81 @@ export function TeamCard({ member, variant = 'consultant', index = 0, className 
     );
   }
 
-  /* ── Consultant: original compact card ──────────────────────────────── */
+  /* ── Consultant: clean column without box or shadow ─────────────────── */
   return (
     <motion.article
       variants={staggerItem}
-      className={cn(
-        'group flex flex-col bg-white border border-slate-200 rounded overflow-hidden',
-        'hover:shadow-lg hover:border-slate-300',
-        'transition-all duration-300 ease-out',
-        className
-      )}
+      className={cn('flex flex-col gap-3', className)}
     >
-      {/* Photo */}
-      <div className="relative overflow-hidden bg-brick-50 aspect-square">
+      {/* Portrait */}
+      <div className="aspect-[4/5] overflow-hidden rounded bg-slate-100">
         {!imgError ? (
           <img
             src={member.imageUrl}
             alt={`Portrait of ${member.name}`}
-            className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500 ease-out"
+            className="w-full h-full object-cover object-top"
             loading="lazy"
             onError={() => setImgError(true)}
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center bg-brick-100">
-            <span className="font-display text-3xl font-bold text-brick-400">
+          <div className="w-full h-full flex items-center justify-center bg-slate-100">
+            <span className="font-display text-3xl font-bold text-slate-400">
               {getInitials(member.name)}
             </span>
           </div>
         )}
-
-        {/* Years badge */}
-        <div className="absolute top-3 right-3 bg-navy-700/90 text-white text-xs font-mono px-2 py-1 rounded">
-          {member.yearsOfExperience}yr exp.
-        </div>
       </div>
 
-      {/* Content */}
-      <div className="p-5 flex flex-col gap-3 flex-1">
-        <div>
-          <h3 className="font-display font-semibold text-navy-700 text-base leading-snug">
-            {member.name}
-          </h3>
-          <p className="text-gold-600 text-sm font-medium mt-0.5">{member.title}</p>
-          <p className="text-slate-400 text-xs mt-0.5 font-mono">{member.department}</p>
-        </div>
+      {/* Info */}
+      <div className="flex flex-col gap-1 mt-1">
+        <h3 className="font-display font-semibold text-navy-700 text-lg leading-snug">
+          {member.name}
+        </h3>
+        <p className="text-slate-600 text-sm">
+          {member.title}
+        </p>
+        <p className="text-sm text-slate-500">
+          {member.department}
+        </p>
+      </div>
 
-        {/* Qualifications */}
-        <div className="flex flex-wrap gap-1.5">
-          {member.qualifications.slice(0, 2).map((q) => (
-            <span key={q} className="text-xs bg-navy-50 text-navy-600 px-2 py-0.5 rounded font-mono">
-              {q.split('(')[1]?.replace(')', '') || q.split(' ')[0]}
+      {/* Qualifications */}
+      {member.qualifications && member.qualifications.length > 0 && (
+        <p className="text-xs text-slate-500 leading-relaxed">
+          {member.qualifications.map((q, i) => (
+            <span key={q} title={q}>
+              {formatQualification(q)}
+              {i < member.qualifications!.length - 1 ? ', ' : ''}
             </span>
           ))}
-        </div>
+        </p>
+      )}
 
-        {/* Links */}
-        <div className="flex items-center gap-2 pt-1 mt-auto">
+      {/* Bare icon links */}
+      {(member.linkedin || member.email) && (
+        <div className="flex items-center gap-1 mt-auto pt-1">
           {member.linkedin && (
             <a
               href={member.linkedin}
               target="_blank"
               rel="noopener noreferrer"
               aria-label={`${member.name} on LinkedIn`}
-              className="w-8 h-8 flex items-center justify-center rounded text-slate-400 hover:text-navy-700 hover:bg-navy-50 transition-colors"
+              className="size-11 flex items-center justify-center text-slate-500 hover:text-navy-700 transition-colors"
             >
-              <SvgLinkedin size={16} />
+              <AppIcon name="LinkedinLogo" size={18} weight="regular" />
             </a>
           )}
           {member.email && (
             <a
               href={`mailto:${member.email}`}
               aria-label={`Email ${member.name}`}
-              className="w-8 h-8 flex items-center justify-center rounded text-slate-400 hover:text-brick-600 hover:bg-brick-50 transition-colors"
+              className="size-11 flex items-center justify-center text-slate-500 hover:text-brick-600 transition-colors"
             >
-              <Mail size={16} aria-hidden="true" />
+              <AppIcon name="EnvelopeSimple" size={18} weight="regular" />
             </a>
           )}
         </div>
-      </div>
+      )}
     </motion.article>
   );
 }

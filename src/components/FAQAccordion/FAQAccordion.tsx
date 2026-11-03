@@ -1,12 +1,12 @@
 /**
  * FAQAccordion Component
- * Accessible accordion for FAQ items with smooth animation.
+ * Plain divided list. Question + bare plus/minus; no numbering, no chips.
  */
 
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Plus, Minus } from 'lucide-react';
 import { cn } from '@/utils/cn';
+import { AppIcon } from '@/components/AppIcon/AppIcon';
 import type { FAQItem } from '@/types';
 
 interface FAQAccordionProps {
@@ -18,47 +18,39 @@ interface FAQItemProps {
   item: FAQItem;
   isOpen: boolean;
   onToggle: () => void;
-  index: number;
 }
 
-function FAQItemComponent({ item, isOpen, onToggle, index }: FAQItemProps) {
+function FAQItemComponent({ item, isOpen, onToggle }: FAQItemProps) {
   const id = `faq-answer-${item.id}`;
   const triggerId = `faq-trigger-${item.id}`;
 
   return (
-    <div
-      className={cn(
-        'border-b border-slate-200 last:border-b-0',
-        'transition-colors duration-150',
-        isOpen && 'bg-slate-50/50'
-      )}
-    >
-      <button
-        id={triggerId}
-        onClick={onToggle}
-        className="w-full flex items-start justify-between gap-4 py-5 px-0 text-left"
-        aria-expanded={isOpen}
-        aria-controls={id}
-      >
-        <span className={cn('font-medium text-sm leading-relaxed', isOpen ? 'text-navy-700' : 'text-slate-700')}>
-          <span className="text-gold-600 font-mono text-xs mr-3" aria-hidden="true">
-            {String(index + 1).padStart(2, '0')}
-          </span>
-          {item.question}
-        </span>
-        <span
-          className={cn(
-            'flex-shrink-0 w-6 h-6 flex items-center justify-center rounded',
-            'transition-colors duration-150',
-            isOpen
-              ? 'text-brick-600 bg-brick-50'
-              : 'text-slate-400 bg-slate-100'
-          )}
-          aria-hidden="true"
+    <div>
+      <h3>
+        <button
+          id={triggerId}
+          type="button"
+          onClick={onToggle}
+          className="w-full flex items-center justify-between gap-4 py-5 text-left min-h-[52px]"
+          aria-expanded={isOpen}
+          aria-controls={id}
         >
-          {isOpen ? <Minus size={14} /> : <Plus size={14} />}
-        </span>
-      </button>
+          <span
+            className={cn(
+              'font-body font-medium text-base leading-snug',
+              isOpen ? 'text-brick-600' : 'text-navy-700'
+            )}
+          >
+            {item.question}
+          </span>
+          <AppIcon
+            name={isOpen ? 'Minus' : 'Plus'}
+            size={20}
+            weight="regular"
+            className={isOpen ? 'text-brick-600' : 'text-slate-500'}
+          />
+        </button>
+      </h3>
 
       <AnimatePresence initial={false}>
         {isOpen && (
@@ -69,10 +61,10 @@ function FAQItemComponent({ item, isOpen, onToggle, index }: FAQItemProps) {
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.25, ease: [0, 0, 0.2, 1] }}
+            transition={{ duration: 0.2, ease: 'easeOut' }}
             className="overflow-hidden"
           >
-            <p className="text-sm text-slate-500 leading-relaxed pb-5 pl-8">
+            <p className="text-base text-slate-600 leading-relaxed pb-6 max-w-prose">
               {item.answer}
             </p>
           </motion.div>
@@ -85,19 +77,14 @@ function FAQItemComponent({ item, isOpen, onToggle, index }: FAQItemProps) {
 export function FAQAccordion({ items, className }: FAQAccordionProps) {
   const [openId, setOpenId] = useState<string | null>(null);
 
-  const handleToggle = (id: string) => {
-    setOpenId((prev) => (prev === id ? null : id));
-  };
-
   return (
-    <div className={cn('divide-y divide-slate-200 border-t border-slate-200', className)} role="list">
-      {items.map((item, index) => (
+    <div className={cn('divide-y divide-slate-200 border-y border-slate-200', className)}>
+      {items.map((item) => (
         <FAQItemComponent
           key={item.id}
           item={item}
           isOpen={openId === item.id}
-          onToggle={() => handleToggle(item.id)}
-          index={index}
+          onToggle={() => setOpenId((prev) => (prev === item.id ? null : item.id))}
         />
       ))}
     </div>

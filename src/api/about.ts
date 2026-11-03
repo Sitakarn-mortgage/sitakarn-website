@@ -64,12 +64,12 @@ export interface AboutPageData {
 // ─── Default real-estate section (stays static unless CMS overrides) ──────────
 
 const defaultRealEstateHighlights: RealEstateHighlight[] = [
-  { label: 'Verified Property Listings', icon: '🏠', desc: 'Every property reviewed before being promoted to buyers' },
-  { label: 'AI Buyer–Property Matching', icon: '🔗', desc: 'Smart matching engine connects requirements to available properties' },
-  { label: 'AML/CFT Compliant', icon: '🛡️', desc: 'Formal KYC, source-of-funds review, and Banking Channel First policy' },
-  { label: '20-Step Transaction Process', icon: '📋', desc: 'From seller registration to title transfer — fully documented' },
-  { label: 'SPIN Property Database', icon: '🗄️', desc: 'Centralized, technology-enabled verified property database' },
-  { label: 'Professional Partner Network', icon: '🤝', desc: 'Lawyers, valuers, surveyors, banks, and government liaisons' },
+  { label: 'Verified Property Listings', icon: 'Home', desc: 'Every property reviewed before being promoted to buyers' },
+  { label: 'AI Buyer–Property Matching', icon: 'GitMerge', desc: 'Smart matching engine connects requirements to available properties' },
+  { label: 'AML/CFT Compliant', icon: 'ShieldCheck', desc: 'Formal KYC, source-of-funds review, and Banking Channel First policy' },
+  { label: '20-Step Transaction Process', icon: 'ClipboardList', desc: 'From seller registration to title transfer — fully documented' },
+  { label: 'SPIN Property Database', icon: 'Database', desc: 'Centralized, technology-enabled verified property database' },
+  { label: 'Professional Partner Network', icon: 'Handshake', desc: 'Lawyers, valuers, surveyors, banks, and government liaisons' },
 ];
 
 const defaultRealEstate = {

@@ -54,20 +54,10 @@ export function PageHero({
         </div>
       )}
 
-      {/* Brand-Compliant Layered Navy & Brick Editorial Overlay */}
-      <div
-        className="absolute inset-0 z-0 bg-gradient-to-br from-navy-900/90 via-navy-800/82 to-brick-900/70"
-        aria-hidden="true"
-      />
-      <div
-        className="absolute inset-0 z-0 bg-[radial-gradient(circle_at_20%_30%,_rgba(13,27,94,0.35)_0%,_transparent_65%)]"
-        aria-hidden="true"
-      />
-      {/* Top brick accent hairline */}
-      <div
-        className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-brick-600 via-brick-400 to-brick-600 z-10"
-        aria-hidden="true"
-      />
+      {/* Flat navy overlay for text legibility over the photograph */}
+      <div className="absolute inset-0 z-0 bg-navy-900/80" aria-hidden="true" />
+      {/* Top brick rule */}
+      <div className="absolute top-0 left-0 right-0 h-1 bg-brick-600 z-10" aria-hidden="true" />
 
       <Container className="relative z-10">
         <div className={cn('max-w-3xl', isCentered && 'mx-auto text-center')}>

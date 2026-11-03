@@ -20,6 +20,7 @@ export const navigationData: NavConfig = {
         href: `/services#${category.id}`,
       })),
     },
+    { label: 'Insights', href: '/insights' },
     { label: 'Team', href: '/team' },
     { label: 'Contact', href: '/contact' },
   ],

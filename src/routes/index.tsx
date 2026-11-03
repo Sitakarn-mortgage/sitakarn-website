@@ -1,6 +1,6 @@
 /**
  * Application Routes
- * Defines all routes and lazy loads components where appropriate.
+ * Defines all routes including LegalPage (/privacy and /terms).
  */
 
 import React from 'react';
@@ -13,6 +13,7 @@ import { Team } from '@/pages/Team';
 import { Contact } from '@/pages/Contact';
 import { Insights } from '@/pages/Insights';
 import { InsightDetail } from '@/pages/InsightDetail';
+import { LegalPage } from '@/pages/LegalPage';
 import { NotFound } from '@/pages/NotFound';
 
 export const router = createBrowserRouter([
@@ -47,6 +48,14 @@ export const router = createBrowserRouter([
       {
         path: 'insights/:slug',
         element: <InsightDetail />,
+      },
+      {
+        path: 'privacy',
+        element: <LegalPage type="privacy" />,
+      },
+      {
+        path: 'terms',
+        element: <LegalPage type="terms" />,
       },
       {
         path: '*',

@@ -167,10 +167,30 @@ export const GlobalAPI = {
       try {
         const res = await fetchSingle<Record<string, unknown>>('navigation');
         const d = res.data ?? {};
-        const links =
+        const rawLinks =
           Array.isArray(d.links) && d.links.length > 0
             ? (d.links as NavLink[])
             : defaultNavigation.links;
+
+        let links = [...rawLinks];
+        const hasInsights = links.some(
+          (l) => l.href === '/insights' || l.label.toLowerCase() === 'insights'
+        );
+        if (!hasInsights) {
+          const idx = links.findIndex(
+            (l) =>
+              l.href === '/team' ||
+              l.href === '/contact' ||
+              l.label.toLowerCase() === 'team' ||
+              l.label.toLowerCase() === 'contact'
+          );
+          if (idx !== -1) {
+            links.splice(idx, 0, { label: 'Insights', href: '/insights' });
+          } else {
+            links.push({ label: 'Insights', href: '/insights' });
+          }
+        }
+
         const cta = {
           label: (d.ctaLabel as string) || defaultNavigation.cta.label,
           href: (d.ctaHref as string) || defaultNavigation.cta.href,
@@ -209,10 +229,28 @@ export const GlobalAPI = {
       try {
         const res = await fetchSingle<Record<string, unknown>>('footer');
         const d = res.data ?? {};
-        const columns =
+        let columns =
           Array.isArray(d.columns) && d.columns.length > 0
             ? (d.columns as FooterColumn[])
             : defaultFooter.columns;
+
+        columns = columns.map((col) => {
+          const titleLower = col.title.toLowerCase();
+          if (titleLower.includes('service')) {
+            return {
+              ...col,
+              links: defaultFooter.columns.find((c) => c.title.toLowerCase().includes('service'))?.links || col.links,
+            };
+          }
+          if (titleLower.includes('resource')) {
+            return {
+              ...col,
+              links: defaultFooter.columns.find((c) => c.title.toLowerCase().includes('resource'))?.links || col.links,
+            };
+          }
+          return col;
+        });
+
         const certifications =
           Array.isArray(d.certifications) && d.certifications.length > 0
             ? (d.certifications as string[])

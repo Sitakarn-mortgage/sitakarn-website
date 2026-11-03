@@ -1,14 +1,12 @@
 /**
  * Insight Detail Page
  * Editorial article view presenting regulatory analysis and insights.
- * Includes custom dependency-free markdown parser, author metadata,
- * tags, and contextual related articles.
+ * Uses AppIcon for all icons and includes dependency-free markdown rendering.
  */
 
 import React, { useMemo } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
-import { ArrowLeft, ArrowRight, Clock } from 'lucide-react';
 import { cn } from '@/utils/cn';
 import { useSEO } from '@/hooks/useSEO';
 import { BlogAPI } from '@/api/blog';
@@ -20,11 +18,11 @@ import { SectionWrapper } from '@/components/SectionWrapper/SectionWrapper';
 import { SectionTitle } from '@/components/SectionTitle/SectionTitle';
 import { Divider } from '@/components/Divider/Divider';
 import { InsightCard } from '@/components/InsightCard/InsightCard';
+import { AppIcon } from '@/components/AppIcon/AppIcon';
 
 // ─── Inline Formatting Parser Helper ─────────────────────────────────────────
 
 function renderInlineFormatting(text: string): React.ReactNode[] {
-  // Regex pattern matching `code`, [link](url), **bold**, *italic*
   const tokenRegex = /(`[^`]+`|\[[^\]]+\]\([^)]+\)|\*\*[^*]+\*\*|\*[^*]+\*)/g;
   const parts = text.split(tokenRegex);
 
@@ -81,20 +79,17 @@ function renderMarkdown(content: string): React.ReactNode {
     const rawLine = lines[i];
     const trimmed = rawLine.trim();
 
-    // Skip empty lines
     if (!trimmed) {
       i++;
       continue;
     }
 
-    // Horizontal Rule (--- or ***)
     if (trimmed === '---' || trimmed === '***' || trimmed === '___') {
       blocks.push(<hr key={`hr-${i}`} className="my-8 border-slate-200" />);
       i++;
       continue;
     }
 
-    // Heading 3 (### Heading)
     if (trimmed.startsWith('### ')) {
       const text = trimmed.slice(4).trim();
       blocks.push(
@@ -109,7 +104,6 @@ function renderMarkdown(content: string): React.ReactNode {
       continue;
     }
 
-    // Heading 2 (## Heading)
     if (trimmed.startsWith('## ')) {
       const text = trimmed.slice(3).trim();
       blocks.push(
@@ -124,7 +118,6 @@ function renderMarkdown(content: string): React.ReactNode {
       continue;
     }
 
-    // Blockquote (> Quote)
     if (trimmed.startsWith('>')) {
       const quoteLines: string[] = [];
       while (i < lines.length && lines[i].trim().startsWith('>')) {
@@ -134,7 +127,7 @@ function renderMarkdown(content: string): React.ReactNode {
       blocks.push(
         <blockquote
           key={`bq-${i}`}
-          className="border-l-2 border-brick-600 bg-offwhite pl-6 py-4 my-6 italic font-display text-slate-700 rounded-r"
+          className="border-l-4 border-brick-600 bg-offwhite pl-5 sm:pl-6 py-4 my-6 italic font-display text-slate-700 rounded-r-md"
         >
           {quoteLines.map((ql, qIdx) => (
             <p key={qIdx} className={cn('leading-relaxed', qIdx > 0 && 'mt-2')}>
@@ -146,7 +139,6 @@ function renderMarkdown(content: string): React.ReactNode {
       continue;
     }
 
-    // Ordered List (1. Item)
     if (/^\d+\.\s+/.test(trimmed)) {
       const items: { num: string; text: string }[] = [];
       while (i < lines.length) {
@@ -175,7 +167,7 @@ function renderMarkdown(content: string): React.ReactNode {
         <ol key={`ol-${i}`} className="space-y-3 my-5 pl-1">
           {items.map((item, idx) => (
             <li key={idx} className="flex items-start gap-3 text-slate-600 leading-relaxed text-base">
-              <span className="flex-shrink-0 font-mono text-xs font-semibold text-gold-600 bg-gold-50 border border-gold-200/60 rounded px-2 py-0.5 mt-0.5">
+              <span className="shrink-0 font-mono text-xs font-semibold text-gold-700 bg-gold-50 border border-gold-200/80 rounded px-2 py-0.5 mt-0.5">
                 {item.num}.
               </span>
               <div className="flex-1">{renderInlineFormatting(item.text)}</div>
@@ -186,7 +178,6 @@ function renderMarkdown(content: string): React.ReactNode {
       continue;
     }
 
-    // Unordered List (- item or * item)
     if (/^(\s*)[-*]\s+/.test(rawLine)) {
       const items: { text: string; indent: boolean }[] = [];
       while (i < lines.length) {
@@ -224,7 +215,7 @@ function renderMarkdown(content: string): React.ReactNode {
             >
               <span
                 className={cn(
-                  'rounded-full flex-shrink-0 mt-2.5',
+                  'rounded-full shrink-0 mt-2.5',
                   item.indent ? 'w-1.5 h-1.5 bg-brick-400' : 'w-2 h-2 bg-brick-600'
                 )}
                 aria-hidden="true"
@@ -237,7 +228,6 @@ function renderMarkdown(content: string): React.ReactNode {
       continue;
     }
 
-    // Regular Paragraph
     const paraLines: string[] = [];
     while (i < lines.length) {
       const line = lines[i];
@@ -276,14 +266,12 @@ function renderMarkdown(content: string): React.ReactNode {
 export function InsightDetail() {
   const { slug = '' } = useParams<{ slug: string }>();
 
-  // Fetch individual post by slug
   const { data: postRes, isLoading: postLoading } = useQuery({
     queryKey: ['blogPost', slug],
     queryFn: () => BlogAPI.getBySlug(slug),
     enabled: Boolean(slug),
   });
 
-  // Fetch all posts for fallback lookup and Related Perspectives section
   const { data: allPostsRes } = useQuery({
     queryKey: ['blogPosts'],
     queryFn: BlogAPI.getAll,
@@ -291,11 +279,8 @@ export function InsightDetail() {
   });
 
   const allPosts = allPostsRes?.data ?? blogData;
-
-  // Resolve post: use API result when available, with instant static fallback while loading
   const post = postRes?.data ?? (postLoading ? blogData.find((p) => p.slug === slug) ?? null : null);
 
-  // SEO configuration
   useSEO({
     title: post ? post.title : 'Article',
     description: post?.excerpt ?? 'Sitakarn Financial & Real Estate Insights',
@@ -303,7 +288,6 @@ export function InsightDetail() {
     ogType: 'article',
   });
 
-  // Calculate Related Perspectives (up to 3 other posts, prioritizing same category)
   const relatedPosts = useMemo(() => {
     if (!post) return [];
     const others = allPosts.filter((p) => p.slug !== post.slug);
@@ -312,7 +296,6 @@ export function InsightDetail() {
     return [...sameCategory, ...differentCategory].slice(0, 3);
   }, [allPosts, post]);
 
-  // Article Not Found State
   if (!post && !postLoading) {
     return (
       <SectionWrapper padding="xl" background="offwhite" className="min-h-[60vh] flex items-center">
@@ -329,16 +312,15 @@ export function InsightDetail() {
           </p>
           <Link
             to="/insights"
-            className="inline-flex items-center gap-2 px-6 py-2.5 bg-brick-600 text-white text-sm font-medium rounded hover:bg-brick-700 transition-colors shadow-sm"
+            className="inline-flex items-center gap-2 min-h-[44px] px-6 py-2.5 bg-brick-600 text-white text-sm font-medium rounded hover:bg-brick-700 transition-colors shadow-xs"
           >
-            <ArrowLeft size={16} /> Return to All Perspectives
+            <AppIcon name="ArrowLeft" size={16} weight="bold" /> Return to All Perspectives
           </Link>
         </Container>
       </SectionWrapper>
     );
   }
 
-  // Loading skeleton while initial fetch completes (if no static match)
   if (!post) {
     return (
       <SectionWrapper padding="xl" background="offwhite" className="min-h-[60vh]">
@@ -353,66 +335,47 @@ export function InsightDetail() {
   return (
     <>
       {/* ─── Editorial Article Header ─────────────────────────────────────────── */}
-      <section className="relative overflow-hidden bg-navy-800 pt-20 pb-16 md:pt-24 md:pb-20 border-b border-navy-900/40">
-        {/* Subtle background cover photograph */}
+      <section className="relative overflow-hidden bg-navy-800 pt-16 pb-14 md:pt-20 md:pb-20">
         {post.imageUrl && (
           <div className="absolute inset-0 z-0 opacity-20" aria-hidden="true">
-            <img
-              src={post.imageUrl}
-              alt=""
-              className="w-full h-full object-cover object-center scale-[1.01]"
-            />
+            <img src={post.imageUrl} alt="" className="size-full object-cover object-center" />
           </div>
         )}
-
-        {/* Brand-Compliant Layered Navy & Brick Editorial Overlay */}
-        <div
-          className="absolute inset-0 z-0 bg-gradient-to-br from-navy-900/92 via-navy-800/88 to-brick-900/75"
-          aria-hidden="true"
-        />
-        <div
-          className="absolute inset-0 z-0 bg-[radial-gradient(circle_at_20%_30%,_rgba(13,27,94,0.35)_0%,_transparent_65%)]"
-          aria-hidden="true"
-        />
-
-        {/* Top brick hairline */}
-        <div
-          className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-brick-600 via-brick-400 to-brick-600 z-10"
-          aria-hidden="true"
-        />
+        <div className="absolute top-0 left-0 right-0 h-1 bg-brick-600 z-10" aria-hidden="true" />
 
         <Container size="2xl" className="relative z-10">
           <div className="max-w-4xl">
-            {/* Back to Listing Link */}
             <Link
               to="/insights"
               className="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-widest text-brick-200 hover:text-white mb-6 transition-colors group"
             >
-              <ArrowLeft size={14} className="group-hover:-translate-x-0.5 transition-transform" />
+              <AppIcon
+                name="ArrowLeft"
+                size={14}
+                weight="bold"
+                className="group-hover:-translate-x-0.5 transition-transform"
+              />
               Back to Insights
             </Link>
 
-            {/* Category & Metadata Row */}
-            <div className="flex flex-wrap items-center gap-3 text-white/70 font-mono text-xs mb-4">
+            <div className="flex flex-wrap items-center gap-3 text-white/75 font-mono text-xs mb-4">
               <Badge variant="teal">{post.categoryLabel}</Badge>
               <span aria-hidden="true" className="text-white/40">·</span>
               <span>{formatDate(post.publishedAt)}</span>
               <span aria-hidden="true" className="text-white/40">·</span>
               <span className="flex items-center gap-1">
-                <Clock size={12} className="text-brick-300" aria-hidden="true" />
+                <AppIcon name="Clock" size={13} weight="regular" className="text-brick-300" />
                 {formatReadingTime(post.readingTime)}
               </span>
               <span aria-hidden="true" className="text-white/40">·</span>
               <span>By {post.author}</span>
             </div>
 
-            {/* Title */}
-            <h1 className="font-display font-bold text-3xl md:text-5xl text-white leading-tight max-w-4xl">
+            <h1 className="font-display font-bold text-2xl sm:text-3xl md:text-5xl text-white leading-tight max-w-4xl">
               {post.title}
             </h1>
 
-            {/* Lead Excerpt */}
-            <p className="text-lg text-white/75 leading-relaxed max-w-3xl mt-4">
+            <p className="text-base sm:text-lg text-white/75 leading-relaxed max-w-3xl mt-4">
               {post.excerpt}
             </p>
           </div>
@@ -422,26 +385,14 @@ export function InsightDetail() {
       {/* ─── Article Body Section ─────────────────────────────────────────────── */}
       <SectionWrapper padding="lg" background="white">
         <Container size="md">
-          {/* Featured 16:9 Cover Photograph Card */}
-          <div className="rounded overflow-hidden shadow-xl mb-12 relative aspect-[16/9] w-full bg-slate-100">
-            <img
-              src={post.imageUrl}
-              alt={post.title}
-              className="w-full h-full object-cover"
-            />
-            {/* Signature 1px gold accent bar at bottom on light background */}
-            <div
-              className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-gold-400 via-gold-300 to-gold-500"
-              aria-hidden="true"
-            />
+          <div className="overflow-hidden rounded mb-10 sm:mb-12 aspect-[16/9] w-full bg-slate-100">
+            <img src={post.imageUrl} alt={post.title} className="size-full object-cover" />
           </div>
 
-          {/* Clean Editorial Markdown Renderer */}
           <article className="prose-clean">
             {renderMarkdown(post.body || post.excerpt)}
           </article>
 
-          {/* Tags & Author/Callout Footer */}
           {post.tags && post.tags.length > 0 && (
             <div className="flex flex-wrap items-center gap-2 pt-8 mt-12 border-t border-slate-200">
               <span className="text-xs font-mono text-slate-400 uppercase tracking-wider mr-2">
@@ -459,26 +410,20 @@ export function InsightDetail() {
           )}
 
           {/* Need Tailored Advisory Callout */}
-          <div className="mt-12 p-6 md:p-8 rounded border border-brick-200/80 bg-gradient-to-br from-brick-50/70 to-white shadow-sm flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+          <div className="mt-12 pt-8 border-t border-slate-200 flex flex-col md:flex-row md:items-center justify-between gap-6">
             <div>
-              <div className="flex items-center gap-2 mb-2">
-                <div className="w-2 h-2 rounded-full bg-brick-600" />
-                <span className="font-mono text-xs uppercase tracking-wider text-brick-600 font-semibold">
-                  Specialized Advisory
-                </span>
-              </div>
-              <h4 className="font-display font-bold text-xl text-navy-800 mb-1">
-                Need tailored advisory on this topic?
-              </h4>
+              <h2 className="font-display font-bold text-xl text-navy-700 mb-1">
+                Need advice on this topic?
+              </h2>
               <p className="text-slate-600 text-sm max-w-xl leading-relaxed">
-                Our team of senior chartered accountants, legal advocates, and licensed real estate brokers can review your organization's specific requirements.
+                Our chartered accountants, legal advocates, and licensed real estate brokers can review your organization&apos;s specific requirements.
               </p>
             </div>
             <Link
-              to="/contact"
-              className="inline-flex items-center gap-2 px-5 py-2.5 bg-brick-600 text-white text-sm font-medium rounded hover:bg-brick-700 transition-colors shadow-sm flex-shrink-0"
+              to={`/contact?topic=${encodeURIComponent(post.title)}`}
+              className="inline-flex items-center justify-center gap-2 min-h-[44px] px-6 py-2.5 bg-brick-600 text-white text-sm font-medium rounded hover:bg-brick-700 transition-colors shrink-0"
             >
-              Schedule a Discussion <ArrowRight size={14} />
+              Talk to an advisor
             </Link>
           </div>
         </Container>
@@ -486,7 +431,7 @@ export function InsightDetail() {
 
       {/* ─── Related Perspectives Section ─────────────────────────────────────── */}
       {relatedPosts.length > 0 && (
-        <SectionWrapper padding="lg" background="offwhite">
+        <SectionWrapper padding="lg" background="offwhite" className="border-t border-slate-200/80">
           <Container size="2xl">
             <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-10">
               <SectionTitle eyebrow="Continue Reading" title="Related Perspectives" />
@@ -495,11 +440,16 @@ export function InsightDetail() {
                 className="inline-flex items-center gap-2 text-xs font-mono uppercase tracking-wider text-brick-600 hover:text-brick-700 font-semibold group"
               >
                 View All Perspectives
-                <ArrowRight size={14} className="group-hover:translate-x-0.5 transition-transform" />
+                <AppIcon
+                  name="ArrowRight"
+                  size={14}
+                  weight="bold"
+                  className="group-hover:translate-x-0.5 transition-transform"
+                />
               </Link>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8">
               {relatedPosts.map((related) => (
                 <InsightCard key={related.id} post={related} />
               ))}

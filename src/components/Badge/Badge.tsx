@@ -16,7 +16,7 @@ interface BadgeProps {
 
 const variantStyles: Record<BadgeVariant, string> = {
   navy:    'bg-navy-700 text-white',
-  teal:    'bg-brick-600 text-white',          // renamed internally but API preserved
+  teal:    'bg-brick-600 text-white', // name preserved for API compatibility; renders brick
   gold:    'bg-gold-100 text-gold-700',
   neutral: 'bg-slate-100 text-slate-600',
   outline: 'border border-brick-200 text-brick-600 bg-transparent',
@@ -26,9 +26,7 @@ export function Badge({ children, variant = 'neutral', className }: BadgeProps) 
   return (
     <span
       className={cn(
-        'inline-flex items-center px-2.5 py-0.5',
-        'text-xs font-medium tracking-wide uppercase',
-        'rounded',
+        'inline-flex items-center px-2.5 py-0.5 text-xs font-medium rounded',
         variantStyles[variant],
         className
       )}

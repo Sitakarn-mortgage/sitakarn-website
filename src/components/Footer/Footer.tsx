@@ -5,10 +5,10 @@
 
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Mail, Phone, MapPin, ArrowRight, CheckCircle } from 'lucide-react';
 import { cn } from '@/utils/cn';
 import { Logo } from '@/components/Logo/Logo';
 import { SocialIcons } from '@/components/SocialIcons/SocialIcons';
+import { AppIcon } from '@/components/AppIcon/AppIcon';
 import { useCompanyInfo, useFooter } from '@/hooks/useGlobalContent';
 import { ContactAPI } from '@/api/contact';
 
@@ -48,20 +48,20 @@ export function Footer() {
             <address className="not-italic flex flex-col gap-3">
               <a
                 href={`tel:${companyInfo.phone}`}
-                className="flex items-center gap-2.5 text-sm text-white/60 hover:text-white transition-colors"
+                className="flex items-center gap-2.5 text-sm text-white/60 hover:text-white transition-colors min-h-[44px] py-1"
               >
-                <Phone size={14} className="text-white/50 flex-shrink-0" aria-hidden="true" />
+                <AppIcon name="Phone" size={16} weight="duotone" className="text-white/50 flex-shrink-0" />
                 {companyInfo.phone}
               </a>
               <a
                 href={`mailto:${companyInfo.email}`}
-                className="flex items-center gap-2.5 text-sm text-white/60 hover:text-white transition-colors"
+                className="flex items-center gap-2.5 text-sm text-white/60 hover:text-white transition-colors min-h-[44px] py-1"
               >
-                <Mail size={14} className="text-white/50 flex-shrink-0" aria-hidden="true" />
+                <AppIcon name="EnvelopeSimple" size={16} weight="duotone" className="text-white/50 flex-shrink-0" />
                 {companyInfo.email}
               </a>
-              <div className="flex items-start gap-2.5 text-sm text-white/60">
-                <MapPin size={14} className="text-white/50 flex-shrink-0 mt-0.5" aria-hidden="true" />
+              <div className="flex items-start gap-2.5 text-sm text-white/60 py-1">
+                <AppIcon name="MapPin" size={16} weight="duotone" className="text-white/50 flex-shrink-0 mt-0.5" />
                 <span>{companyInfo.address.full}</span>
               </div>
             </address>
@@ -84,12 +84,13 @@ export function Footer() {
                   <li key={link.label}>
                     <Link
                       to={link.href}
-                      className="text-sm text-white/50 hover:text-white transition-colors duration-150 flex items-center gap-1 group"
+                      className="text-sm text-white/50 hover:text-white transition-colors duration-150 flex items-center gap-1 group py-1 min-h-[44px] sm:min-h-0"
                     >
-                      <ArrowRight
-                        size={10}
+                      <AppIcon
+                        name="ArrowRight"
+                        size={12}
+                        weight="regular"
                         className="opacity-0 group-hover:opacity-100 -translate-x-1 group-hover:translate-x-0 transition-all duration-150"
-                        aria-hidden="true"
                       />
                       {link.label}
                     </Link>
@@ -112,7 +113,7 @@ export function Footer() {
               </p>
             </div>
             <form onSubmit={handleNewsletter} noValidate>
-              <div className="flex gap-2">
+              <div className="flex flex-col sm:flex-row gap-3">
                 <label htmlFor="footer-newsletter-email" className="sr-only">
                   Email address
                 </label>
@@ -125,7 +126,7 @@ export function Footer() {
                   required
                   disabled={newsletterState === 'loading' || newsletterState === 'success'}
                   className={cn(
-                    'flex-1 px-4 py-2.5 text-sm rounded',
+                    'flex-1 px-4 py-3 text-sm rounded min-h-[44px]',
                     'bg-navy-800 text-white placeholder:text-white/30',
                     'border border-white/15 focus:border-brick-400',
                     'focus:outline-none focus:ring-1 focus:ring-brick-400',
@@ -136,7 +137,7 @@ export function Footer() {
                   type="submit"
                   disabled={newsletterState === 'loading' || newsletterState === 'success'}
                   className={cn(
-                    'flex-shrink-0 px-5 py-2.5 text-sm font-semibold rounded',
+                    'flex-shrink-0 px-6 py-3 text-sm font-semibold rounded min-h-[44px]',
                     'bg-brick-600 text-white hover:bg-brick-700',
                     'transition-colors duration-150',
                     'disabled:opacity-60 disabled:cursor-not-allowed'
@@ -147,7 +148,7 @@ export function Footer() {
               </div>
               {newsletterState === 'success' && (
                 <p className="mt-2 text-xs text-white/60 flex items-center gap-1.5">
-                  <CheckCircle size={12} aria-hidden="true" />
+                  <AppIcon name="CheckCircle" size={14} weight="duotone" />
                   You&apos;ve been subscribed. Thank you.
                 </p>
               )}
@@ -181,10 +182,10 @@ export function Footer() {
           )}
         >
           <p className="text-xs text-white/40">{companyInfo.copyright}</p>
-          <div className="flex flex-wrap gap-x-4 gap-y-1">
-            <a href="/privacy" className="text-xs text-white/40 hover:text-white transition-colors">Privacy Policy</a>
-            <a href="/terms" className="text-xs text-white/40 hover:text-white transition-colors">Terms of Service</a>
-            {companyInfo.taxId && <span className="text-xs text-white/30">Tax ID: {companyInfo.taxId}</span>}
+          <div className="flex flex-wrap gap-x-6 gap-y-1">
+            <Link to="/privacy" className="text-xs text-white/40 hover:text-white transition-colors min-h-[44px] sm:min-h-0 py-1">Privacy Policy</Link>
+            <Link to="/terms" className="text-xs text-white/40 hover:text-white transition-colors min-h-[44px] sm:min-h-0 py-1">Terms of Service</Link>
+            {companyInfo.taxId && <span className="text-xs text-white/30 py-1">Tax ID: {companyInfo.taxId}</span>}
           </div>
         </div>
       </div>
