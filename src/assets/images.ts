@@ -13,6 +13,9 @@ export const images = {
     main: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?w=1200&q=80&fit=crop',
     about: 'https://images.unsplash.com/photo-1521791136064-7986c2920216?w=1200&q=80&fit=crop',
     contact: 'https://images.unsplash.com/photo-1553484771-371a605b060b?w=1200&q=80&fit=crop',
+    services: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1400&q=80&fit=crop',
+    team: 'https://images.unsplash.com/photo-1522071820081-009f0129c71c?w=1400&q=80&fit=crop',
+    insights: 'https://images.unsplash.com/photo-1450101499163-c8848c66ca85?w=1400&q=80&fit=crop',
   },
 
   // ─── About Page ────────────────────────────────────────────────────────────

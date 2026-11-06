@@ -1,103 +1,180 @@
 /**
  * About Page
+ * Restrained editorial presentation of Sitakarn's heritage, purpose, core values,
+ * brokerage due-diligence framework, and institutional partners.
  */
 
 import React from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { motion } from 'framer-motion';
-import { CheckCircle } from 'lucide-react';
 import { useSEO } from '@/hooks/useSEO';
+import { AboutAPI, defaultAboutPageData } from '@/api/about';
+import { PartnersAPI } from '@/api/partners';
+import { partnersData } from '@/data/partners';
+import { useCompanyInfo } from '@/hooks/useGlobalContent';
+import { PageHero } from '@/components/PageHero/PageHero';
 import { Container } from '@/components/Container/Container';
 import { SectionWrapper } from '@/components/SectionWrapper/SectionWrapper';
 import { SectionTitle } from '@/components/SectionTitle/SectionTitle';
-import { Divider } from '@/components/Divider/Divider';
+import { AppIcon } from '@/components/AppIcon/AppIcon';
 import { fadeUp, staggerContainer, staggerItem } from '@/theme/animations';
-import { images } from '@/assets/images';
-import { partnersData } from '@/data/partners';
-import { company } from '@/config/company';
-import { aboutHero, aboutStory, aboutCertifications, coreValues } from '@/data/about';
 
 export function About() {
+  const companyInfo = useCompanyInfo();
+
+  const { data: aboutRes } = useQuery({
+    queryKey: ['aboutPage'],
+    queryFn: AboutAPI.getPage,
+    placeholderData: {
+      data: defaultAboutPageData,
+      success: true,
+      timestamp: '',
+    },
+  });
+
+  const { data: partnersRes } = useQuery({
+    queryKey: ['partners'],
+    queryFn: PartnersAPI.getAll,
+    placeholderData: {
+      data: partnersData,
+      success: true,
+      timestamp: '',
+    },
+  });
+
+  const about = aboutRes?.data ?? defaultAboutPageData;
+  const partners = partnersRes?.data ?? partnersData;
+
   useSEO({
     title: 'About Us',
-    description: 'Learn about our history, mission, and the values that drive our financial consulting practice.',
+    description:
+      'Learn about our history, mission, and the governance values that drive Sitakarn Mortgage Pvt. Ltd.',
+    ogImage: about.images.heroImageUrl,
   });
+
+  const hero = about.hero;
+  const story = about.story;
+  const values = about.coreValues;
+  const re = about.realEstate;
+  const certs = about.certifications;
 
   return (
     <>
-      {/* ─── HEADER ───────────────────────────────────────────────────────────── */}
-      <SectionWrapper padding="xl" background="navy" className="pt-32 pb-20">
-        <Container>
-          <div className="max-w-3xl">
-            <motion.div initial="hidden" animate="visible" variants={staggerContainer} className="flex flex-col gap-6">
-              <motion.div variants={fadeUp} className="flex items-center gap-3">
-                <Divider theme="dark" />
-                <span className="eyebrow text-white/70">{aboutHero.eyebrow}</span>
-              </motion.div>
-              <motion.h1 variants={fadeUp} className="font-display font-bold text-4xl md:text-5xl text-white leading-tight">
-                {aboutHero.headlinePrefix} {company.established}
-              </motion.h1>
-              <motion.p variants={fadeUp} className="text-lg text-white/60 leading-relaxed">
-                {aboutHero.subheadline}
-              </motion.p>
-            </motion.div>
-          </div>
-        </Container>
-      </SectionWrapper>
+      {/* ─── HERO ──────────────────────────────────────────────────────────────── */}
+      <PageHero
+        eyebrow={hero.eyebrow}
+        title={`${hero.headlinePrefix} ${companyInfo.established}`}
+        description={hero.subheadline}
+        imageUrl={about.images.heroImageUrl}
+        imageAlt={companyInfo.fullName}
+      />
 
-      {/* ─── STORY & VALUES ───────────────────────────────────────────────────── */}
+      {/* ─── SECTION 1: OUR STORY & 4-PHOTO GRID ──────────────────────────────── */}
       <SectionWrapper padding="lg" background="white">
         <Container>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-14 items-start">
+            {/* Story copy */}
             <motion.div
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, margin: '-50px' }}
               variants={staggerContainer}
-              className="flex flex-col gap-6"
+              className="flex flex-col gap-5"
             >
-              <SectionTitle title={aboutStory.title} showRule={false} />
-              {aboutStory.paragraphs.map((para, i) => (
-                <motion.p key={i} variants={fadeUp} className="text-slate-600 leading-relaxed">
+              {story && (
+                <SectionTitle
+                  title={story.title}
+                  showRule={false}
+                />
+              )}
+              {(story?.paragraphs ?? []).map((para, i) => (
+                <motion.p
+                  key={i}
+                  variants={fadeUp}
+                  className="text-slate-600 leading-relaxed"
+                >
                   {para}
                 </motion.p>
               ))}
-              
-              <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-6">
-                {coreValues.map((value) => (
-                  <motion.div key={value.title} variants={fadeUp} className="flex gap-3">
-                    <CheckCircle className="text-gold-500 flex-shrink-0" size={20} />
-                    <div>
-                      <h4 className="font-semibold text-navy-700 mb-1">{value.title}</h4>
-                      <p className="text-sm text-slate-500">{value.desc}</p>
-                    </div>
-                  </motion.div>
-                ))}
-              </div>
             </motion.div>
 
+            {/* Photo grid: all 4 CMS images, no borders, no captions, no overlays */}
             <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.8 }}
-              className="relative"
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: '-50px' }}
+              variants={fadeUp}
+              className="grid grid-cols-2 gap-3"
             >
-              <div className="aspect-[4/3] rounded overflow-hidden shadow-xl">
-                <img src={images.about.office} alt="Our office" className="w-full h-full object-cover" />
-              </div>
-              <div className="absolute -bottom-8 -left-8 w-48 aspect-square rounded overflow-hidden shadow-lg border-4 border-white hidden md:block">
-                <img src={images.about.meeting} alt="Team meeting" className="w-full h-full object-cover" />
-              </div>
+              <img
+                src={about.images.officeImageUrl}
+                alt="Sitakarn corporate headquarters in Kathmandu"
+                loading="eager"
+                className="aspect-[4/3] w-full object-cover rounded"
+              />
+              <img
+                src={about.images.meetingImageUrl}
+                alt="Executive advisory consultation session"
+                loading="lazy"
+                className="aspect-[4/3] w-full object-cover rounded"
+              />
+              <img
+                src={about.images.teamImageUrl}
+                alt="Sitakarn multidisciplinary specialists"
+                loading="lazy"
+                className="aspect-[4/3] w-full object-cover rounded"
+              />
+              <img
+                src={about.images.communityImageUrl}
+                alt="Institutional and community capacity building"
+                loading="lazy"
+                className="aspect-[4/3] w-full object-cover rounded"
+              />
             </motion.div>
           </div>
         </Container>
       </SectionWrapper>
 
-      {/* ─── REAL ESTATE BROKERAGE HIGHLIGHT ──────────────────────────────────── */}
-      <SectionWrapper padding="lg" background="navy" className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-navy-800 via-navy-700 to-brick-800 opacity-95" aria-hidden="true" />
-        <Container className="relative z-10">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
+      {/* ─── SECTION 2: CORE VALUES ───────────────────────────────────────────── */}
+      {values.length > 0 && (
+        <SectionWrapper padding="lg" background="offwhite">
+          <Container>
+            <SectionTitle
+              eyebrow="Our Values"
+              title="What guides our work"
+              className="mb-12"
+            />
+            <motion.div
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: '-50px' }}
+              variants={staggerContainer}
+              className="grid sm:grid-cols-2 lg:grid-cols-3 gap-x-10 gap-y-8"
+            >
+              {values.map((value) => (
+                <motion.div
+                  key={value.title}
+                  variants={staggerItem}
+                  className="border-t border-slate-300 pt-4 flex flex-col gap-2"
+                >
+                  <h3 className="font-display font-semibold text-navy-700 text-lg">
+                    {value.title}
+                  </h3>
+                  <p className="text-sm text-slate-600 leading-relaxed">
+                    {value.desc}
+                  </p>
+                </motion.div>
+              ))}
+            </motion.div>
+          </Container>
+        </SectionWrapper>
+      )}
+
+      {/* ─── SECTION 3: REAL ESTATE BROKERAGE ─────────────────────────────────── */}
+      <SectionWrapper padding="lg" background="navy">
+        <Container>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-14 items-start">
+            {/* Left copy */}
             <motion.div
               initial="hidden"
               whileInView="visible"
@@ -105,43 +182,63 @@ export function About() {
               variants={staggerContainer}
               className="flex flex-col gap-6"
             >
-              <motion.div variants={fadeUp} className="flex items-center gap-3">
-                <Divider theme="dark" />
-                <span className="eyebrow text-white/70">Real Estate Brokerage</span>
-              </motion.div>
-              <motion.h2 variants={fadeUp} className="font-display font-bold text-3xl md:text-4xl text-white leading-tight">
-                Nepal's Professional Property Transaction Partner
+              {re?.eyebrow && (
+                <motion.span variants={fadeUp} className="eyebrow text-brick-200">
+                  {re.eyebrow}
+                </motion.span>
+              )}
+              <motion.h2
+                variants={fadeUp}
+                className="font-display font-bold text-3xl md:text-4xl text-white leading-tight"
+              >
+                {re?.headline}
               </motion.h2>
-              <motion.p variants={fadeUp} className="text-white/70 leading-relaxed">
-                Sitakarn Mortgage Pvt. Ltd. operates as a professional real estate intermediary connecting property owners with genuine buyers through transparent, ethically managed brokerage services. Our structured 20-step transaction process covers everything from seller registration and KYC to government title transfer and commission settlement.
-              </motion.p>
-              <motion.p variants={fadeUp} className="text-white/70 leading-relaxed">
-                Every listed property receives a unique <strong className="text-white">Sitakarn Property Identification Number (SPIN)</strong> and is classified under our due diligence framework — <em>Category A (Verified)</em>, <em>Category B (Verification Pending)</em>, or <em>Category C (Restricted/Rejected)</em> — ensuring buyers are always protected by our "No Clear Title – No Transaction Recommendation" principle.
-              </motion.p>
+              {re?.body1 && (
+                <motion.p
+                  variants={fadeUp}
+                  className="text-white/75 text-base leading-relaxed"
+                >
+                  {re.body1}
+                </motion.p>
+              )}
+              {re?.body2 && (
+                <motion.p
+                  variants={fadeUp}
+                  className="text-white/75 text-base leading-relaxed"
+                >
+                  {re.body2}
+                </motion.p>
+              )}
             </motion.div>
+
+            {/* Right highlights list */}
             <motion.div
               initial="hidden"
               whileInView="visible"
               viewport={{ once: true, margin: '-50px' }}
               variants={staggerContainer}
-              className="grid grid-cols-2 gap-4"
+              className="divide-y divide-white/15 border-y border-white/15"
             >
-              {[
-                { label: 'Verified Property Listings', icon: '🏠', desc: 'Every property reviewed before being promoted to buyers' },
-                { label: 'AI Buyer–Property Matching', icon: '🔗', desc: 'Smart matching engine connects requirements to available properties' },
-                { label: 'AML/CFT Compliant', icon: '🛡️', desc: 'Formal KYC, source-of-funds review, and Banking Channel First policy' },
-                { label: '20-Step Transaction Process', icon: '📋', desc: 'From seller registration to title transfer — fully documented' },
-                { label: 'SPIN Property Database', icon: '🗄️', desc: 'Centralized, technology-enabled verified property database' },
-                { label: 'Professional Partner Network', icon: '🤝', desc: 'Lawyers, valuers, surveyors, banks, and government liaisons' },
-              ].map((item) => (
+              {(re?.highlights ?? []).map((item) => (
                 <motion.div
                   key={item.label}
-                  variants={fadeUp}
-                  className="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/10 hover:bg-white/15 transition-colors"
+                  variants={staggerItem}
+                  className="py-5 flex items-start gap-4"
                 >
-                  <div className="text-2xl mb-2">{item.icon}</div>
-                  <h4 className="font-semibold text-white text-sm mb-1">{item.label}</h4>
-                  <p className="text-white/50 text-xs leading-relaxed">{item.desc}</p>
+                  <AppIcon
+                    name={item.icon}
+                    size={28}
+                    weight="duotone"
+                    className="text-brick-200 shrink-0 mt-0.5"
+                  />
+                  <div className="flex flex-col gap-1">
+                    <h3 className="font-semibold text-white text-base">
+                      {item.label}
+                    </h3>
+                    <p className="text-white/70 text-sm leading-relaxed">
+                      {item.desc}
+                    </p>
+                  </div>
                 </motion.div>
               ))}
             </motion.div>
@@ -149,32 +246,64 @@ export function About() {
         </Container>
       </SectionWrapper>
 
-      {/* ─── CERTIFICATIONS ───────────────────────────────────────────────────── */}
-      <SectionWrapper padding="lg" background="offwhite">
+      {/* ─── SECTION 4: CERTIFICATIONS & PARTNERS ─────────────────────────────── */}
+      <SectionWrapper padding="lg" background="white">
         <Container>
-          <SectionTitle
-            eyebrow={aboutCertifications.eyebrow}
-            title={aboutCertifications.title}
-            description={aboutCertifications.description}
-            align="center"
-            className="mx-auto mb-16"
-          />
+          {certs && (
+            <SectionTitle
+              eyebrow={certs.eyebrow}
+              title={certs.title}
+              description={certs.description}
+              align="center"
+              className="mx-auto mb-12"
+            />
+          )}
           <motion.div
             initial="hidden"
             whileInView="visible"
             viewport={{ once: true, margin: '-50px' }}
             variants={staggerContainer}
-            className="flex flex-wrap justify-center gap-8 md:gap-16 items-center opacity-70 grayscale hover:grayscale-0 transition-all duration-500"
+            className="flex flex-wrap justify-center gap-x-10 gap-y-8"
           >
-            {partnersData.map((partner) => (
-              <motion.div key={partner.id} variants={staggerItem} className="flex flex-col items-center gap-2 max-w-[150px] text-center">
-                <div className="w-20 h-20 bg-white rounded-full flex items-center justify-center shadow-sm p-4">
-                  {/* Placeholder for real logos */}
-                  <span className="font-mono text-xs font-bold text-slate-400">{partner.name.split(' ')[0]}</span>
+            {partners.map((partner) => {
+              const content = (
+                <div className="flex flex-col items-center text-center gap-2 max-w-[200px]">
+                  <div className="h-14 flex items-center justify-center">
+                    {partner.logoUrl ? (
+                      <img
+                        src={partner.logoUrl}
+                        alt={partner.name}
+                        className="max-h-14 max-w-full object-contain"
+                      />
+                    ) : (
+                      <span className="font-mono text-sm font-bold text-navy-700">
+                        {partner.shortCode || partner.name.split(' ')[0]}
+                      </span>
+                    )}
+                  </div>
+                  <span className="text-sm text-slate-600 leading-snug">
+                    {partner.name}
+                  </span>
                 </div>
-                <span className="text-xs font-medium text-slate-500">{partner.name}</span>
-              </motion.div>
-            ))}
+              );
+
+              return partner.website ? (
+                <motion.a
+                  key={partner.id}
+                  variants={staggerItem}
+                  href={partner.website}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-brick-600 rounded"
+                >
+                  {content}
+                </motion.a>
+              ) : (
+                <motion.div key={partner.id} variants={staggerItem} className="flex">
+                  {content}
+                </motion.div>
+              );
+            })}
           </motion.div>
         </Container>
       </SectionWrapper>

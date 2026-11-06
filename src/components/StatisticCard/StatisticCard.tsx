@@ -1,15 +1,13 @@
 /**
  * StatisticCard Component
- * Displays a key statistic with value, label, and optional icon.
- *
- * Dark theme: white accents — gold is NOT used on navy (off-putting)
- * Light theme: gold accents on white bg — appropriate
+ * Number + label + description. Bare icon, no chip, no boxed cell.
+ * Dark theme uses white / brick-200 only (never gold on navy).
  */
 
 import React from 'react';
-import * as LucideIcons from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '@/utils/cn';
+import { AppIcon } from '@/components/AppIcon/AppIcon';
 import { staggerItem } from '@/theme/animations';
 import type { Statistic } from '@/types';
 
@@ -21,60 +19,43 @@ interface StatisticCardProps {
 
 export function StatisticCard({ stat, theme = 'light', className }: StatisticCardProps) {
   const isDark = theme === 'dark';
-  const IconComponent = stat.icon
-    ? (LucideIcons as unknown as Record<string, React.ComponentType<{ size?: number; 'aria-hidden'?: string }>>)[stat.icon]
-    : null;
 
   return (
     <motion.div
       variants={staggerItem}
       className={cn(
-        'flex flex-col gap-2 p-6',
-        'border-t-2',
-        isDark
-          ? 'border-brick-400 text-white'       // brick accent on navy — stays in brand
-          : 'border-gold-500 text-navy-700',     // gold on white — appropriate
+        'flex flex-col gap-2 pt-5 border-t',
+        isDark ? 'border-white/20' : 'border-slate-200',
         className
       )}
     >
-      {IconComponent && (
-        <div
-          className={cn(
-            'w-8 h-8 flex items-center justify-center rounded',
-            isDark
-              ? 'bg-white/10 text-white/80'     // subtle white on navy (NOT gold)
-              : 'bg-gold-50 text-gold-600'       // gold on white card — fine
-          )}
-        >
-          <IconComponent size={16} aria-hidden="true" />
-        </div>
-      )}
-
-      <div className="flex flex-col gap-1">
-        <span
-          className={cn(
-            'font-display font-bold leading-none tracking-tight',
-            'text-4xl',
-            isDark ? 'text-white' : 'text-navy-700'
-          )}
-          aria-label={`${stat.value} ${stat.label}`}
-        >
-          {stat.value}
-        </span>
-        <span
-          className={cn(
-            'text-sm font-semibold uppercase tracking-wide font-mono',
-            isDark ? 'text-white/60' : 'text-gold-600'   // white on navy, gold on white
-          )}
-        >
+      <span
+        className={cn(
+          'font-display font-bold leading-none tabular-nums text-4xl sm:text-5xl',
+          isDark ? 'text-white' : 'text-navy-700'
+        )}
+        aria-label={`${stat.value} ${stat.label}`}
+      >
+        {stat.value}
+      </span>
+      <span className="flex items-center gap-2 mt-1">
+        {stat.icon && (
+          <AppIcon
+            name={stat.icon}
+            size={18}
+            weight="regular"
+            className={isDark ? 'text-brick-200' : 'text-brick-600'}
+          />
+        )}
+        <span className={cn('text-base font-medium', isDark ? 'text-white' : 'text-navy-700')}>
           {stat.label}
         </span>
-        {stat.description && (
-          <p className={cn('text-xs mt-1 leading-relaxed', isDark ? 'text-white/50' : 'text-slate-500')}>
-            {stat.description}
-          </p>
-        )}
-      </div>
+      </span>
+      {stat.description && (
+        <p className={cn('text-sm leading-relaxed', isDark ? 'text-white/65' : 'text-slate-600')}>
+          {stat.description}
+        </p>
+      )}
     </motion.div>
   );
 }

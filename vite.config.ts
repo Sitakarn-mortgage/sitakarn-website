@@ -8,13 +8,17 @@ export default defineConfig({
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
-      '@': resolve(__dirname, './src'),
+      '@': resolve(import.meta.dirname, './src'),
     },
   },
-  server:{
+  server: {
+    port: 5137,
     allowedHosts: [
       'full-classic-terrier.ngrok-free.app',
     ],
+  },
+  preview: {
+    port: 5137,
   },
   build: {
     target: 'es2020',

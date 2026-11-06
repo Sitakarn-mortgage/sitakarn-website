@@ -13,8 +13,6 @@
 
 import type { TeamMember, TeamRole } from '@/types';
 
-const ARRAY_FIELDS = ['qualifications', 'specializations'] as const;
-
 function parseLine(line: string): TeamMember | null {
   line = line.trim();
   if (!line || line.startsWith('#')) return null;

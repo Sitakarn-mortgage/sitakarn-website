@@ -1,16 +1,16 @@
 /**
  * InsightCard Component
- * Blog/Insights preview card.
+ * Article preview. Bordered card is appropriate here: it is a distinct, clickable object.
  */
 
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowRight, Clock } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '@/utils/cn';
 import { staggerItem } from '@/theme/animations';
 import { formatDateShort, formatReadingTime } from '@/utils/format';
 import { Badge } from '@/components/Badge/Badge';
+import { AppIcon } from '@/components/AppIcon/AppIcon';
 import type { BlogPost } from '@/types';
 
 interface InsightCardProps {
@@ -22,62 +22,44 @@ export function InsightCard({ post, className }: InsightCardProps) {
   return (
     <motion.article
       variants={staggerItem}
-      className={cn(
-        'group flex flex-col border border-slate-200 bg-white rounded overflow-hidden',
-        'hover:shadow-lg hover:border-slate-300',
-        'transition-all duration-300 ease-out',
-        className
-      )}
+      className={cn('group flex flex-col border border-slate-200 bg-white rounded overflow-hidden', className)}
     >
-      {/* Image */}
-      <div className="relative overflow-hidden aspect-[16/9] bg-slate-100">
-        <img
-          src={post.imageUrl}
-          alt={post.title}
-          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
-          loading="lazy"
-        />
+      <Link
+        to={`/insights/${post.slug}`}
+        className="relative block overflow-hidden aspect-[16/9] bg-slate-100"
+        tabIndex={-1}
+        aria-hidden="true"
+      >
+        <img src={post.imageUrl} alt="" className="size-full object-cover" loading="lazy" />
         <div className="absolute top-3 left-3">
           <Badge variant="teal">{post.categoryLabel}</Badge>
         </div>
-      </div>
+      </Link>
 
-      {/* Content */}
       <div className="p-5 flex flex-col gap-3 flex-1">
-        {/* Meta */}
-        <div className="flex items-center gap-3 text-xs text-slate-400 font-mono">
+        <div className="flex items-center gap-3 text-sm text-slate-500">
           <span>{formatDateShort(post.publishedAt)}</span>
-          <span aria-hidden="true">·</span>
-          <span className="flex items-center gap-1">
-            <Clock size={10} aria-hidden="true" />
+          <span className="flex items-center gap-1.5">
+            <AppIcon name="Clock" size={14} weight="regular" />
             {formatReadingTime(post.readingTime)}
           </span>
         </div>
 
-        {/* Title */}
-        <h3 className="font-display font-semibold text-navy-700 text-base leading-snug group-hover:text-brick-600 transition-colors duration-200 line-clamp-2">
-          {post.title}
+        <h3 className="font-display font-semibold text-navy-700 text-lg leading-snug line-clamp-2 group-hover:text-brick-600 transition-colors">
+          <Link to={`/insights/${post.slug}`}>{post.title}</Link>
         </h3>
 
-        {/* Excerpt */}
-        <p className="text-sm text-slate-500 leading-relaxed line-clamp-3 flex-1">
-          {post.excerpt}
-        </p>
+        <p className="text-sm text-slate-600 leading-relaxed line-clamp-3 flex-1">{post.excerpt}</p>
 
-        {/* Author + CTA */}
-        <div className="flex items-center justify-between pt-2 mt-auto border-t border-slate-100">
-          <span className="text-xs text-slate-400">{post.author}</span>
+        <div className="flex items-center justify-between pt-3 mt-auto border-t border-slate-100">
+          <span className="text-sm text-slate-500 truncate pr-2">{post.author}</span>
           <Link
             to={`/insights/${post.slug}`}
-            className="inline-flex items-center gap-1 text-xs font-medium text-brick-600 hover:text-brick-700 transition-colors group/link"
+            className="inline-flex items-center gap-1.5 min-h-[44px] text-sm font-medium text-brick-600 hover:text-brick-700 shrink-0"
             aria-label={`Read ${post.title}`}
           >
-            Read
-            <ArrowRight
-              size={12}
-              className="group-hover/link:translate-x-0.5 transition-transform duration-150"
-              aria-hidden="true"
-            />
+            Read article
+            <AppIcon name="ArrowRight" size={14} weight="bold" />
           </Link>
         </div>
       </div>

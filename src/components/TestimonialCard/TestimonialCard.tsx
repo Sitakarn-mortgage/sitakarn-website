@@ -1,6 +1,6 @@
 /**
  * TestimonialCard Component
- * Pull-quote magazine style — not a generic star-rating card.
+ * Pull-quote with a brick rule on the left. No box, no shadow.
  */
 
 import React from 'react';
@@ -15,52 +15,27 @@ interface TestimonialCardProps {
   className?: string;
 }
 
-const orgTypeLabels: Record<string, string> = {
-  cooperative: 'Cooperative',
-  sme: 'SME',
-  ngo: 'NGO',
-  government: 'Government',
-  other: 'Organization',
-};
-
 export function TestimonialCard({ testimonial, variant = 'default', className }: TestimonialCardProps) {
   return (
     <motion.blockquote
       variants={staggerItem}
-      className={cn(
-        'flex flex-col gap-5 p-7',
-        'border-l-2 border-brick-600',
-        'bg-white',
-        variant === 'featured' && 'border-l-4 border-gold-500',
-        className
-      )}
+      className={cn('flex flex-col gap-5 pl-6 border-l-2 border-brick-600', className)}
     >
-      {/* Quote mark — editorial style */}
-      <div
-        className="font-display text-6xl text-brick-100 leading-none select-none"
-        aria-hidden="true"
+      <p
+        className={cn(
+          'text-slate-700 leading-relaxed italic font-display',
+          variant === 'featured' ? 'text-lg' : 'text-base'
+        )}
       >
-        &ldquo;
-      </div>
-
-      {/* Quote text */}
-      <p className={cn(
-        'text-slate-600 leading-relaxed italic font-display',
-        variant === 'featured' ? 'text-base' : 'text-sm'
-      )}>
-        {testimonial.quote}
+        &ldquo;{testimonial.quote}&rdquo;
       </p>
-
-      {/* Attribution */}
-      <footer className="flex flex-col gap-1 mt-auto">
+      <footer className="mt-auto">
         <cite className="not-italic">
           <span className="font-semibold text-sm text-navy-700 block">{testimonial.authorName}</span>
-          <span className="text-xs text-slate-500 block">{testimonial.authorTitle}</span>
+          <span className="text-sm text-slate-500 block">
+            {testimonial.authorTitle}, {testimonial.organization}
+          </span>
         </cite>
-        <div className="flex items-center gap-2 mt-1">
-          <div className="h-px flex-1 bg-slate-100" aria-hidden="true" />
-          <span className="text-xs text-gold-600 font-mono">{testimonial.organization}</span>
-        </div>
       </footer>
     </motion.blockquote>
   );

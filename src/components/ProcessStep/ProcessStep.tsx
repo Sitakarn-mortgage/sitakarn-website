@@ -1,12 +1,12 @@
 /**
  * ProcessStep Component
- * A single step in a process flow.
+ * Numbered step (this content IS a sequence) with a connector line on all screen sizes.
  */
 
 import React from 'react';
-import * as LucideIcons from 'lucide-react';
 import { motion } from 'framer-motion';
 import { cn } from '@/utils/cn';
+import { AppIcon } from '@/components/AppIcon/AppIcon';
 import { fadeUp } from '@/theme/animations';
 import type { ProcessStep as ProcessStepType } from '@/types';
 
@@ -17,41 +17,25 @@ interface ProcessStepProps {
 }
 
 export function ProcessStep({ step, isLast = false, className }: ProcessStepProps) {
-  const IconComponent = (LucideIcons as unknown as Record<string, React.ComponentType<{ size?: number; className?: string; 'aria-hidden'?: string }>>)[step.icon] ?? LucideIcons.Circle;
-
   return (
-    <motion.div
-      variants={fadeUp}
-      className={cn('relative flex gap-6 md:gap-8', className)}
-    >
-      {/* Timeline line */}
+    <motion.div variants={fadeUp} className={cn('relative flex gap-5 md:gap-6', className)}>
       {!isLast && (
-        <div 
-          className="absolute left-6 top-16 bottom-[-24px] w-px bg-slate-200 hidden md:block"
+        <div
+          className="absolute left-5 top-12 bottom-0 w-px bg-slate-200"
           aria-hidden="true"
         />
       )}
 
-      {/* Step Number & Icon */}
-      <div className="flex-shrink-0 flex flex-col items-center">
-        <div className="w-12 h-12 rounded-full bg-navy-700 text-white flex items-center justify-center font-mono font-bold text-lg shadow-md z-10">
-          {step.step}
-        </div>
+      <div className="shrink-0 size-10 rounded-full bg-navy-700 text-white flex items-center justify-center font-mono font-semibold text-sm z-10">
+        {step.step}
       </div>
 
-      {/* Content */}
-      <div className="flex-1 pb-10 md:pb-12 pt-2">
-        <div className="flex items-center gap-3 mb-3">
-          <div className="p-2 bg-gold-50 text-gold-600 rounded">
-            <IconComponent size={20} aria-hidden="true" />
-          </div>
-          <h3 className="font-display font-semibold text-xl text-navy-700">
-            {step.title}
-          </h3>
+      <div className={cn('flex-1 pt-1.5', !isLast && 'pb-10')}>
+        <div className="flex items-center gap-2.5 mb-2">
+          <AppIcon name={step.icon} size={22} weight="duotone" className="text-brick-600" />
+          <h3 className="font-display font-semibold text-xl text-navy-700">{step.title}</h3>
         </div>
-        <p className="text-slate-600 leading-relaxed md:pr-12">
-          {step.description}
-        </p>
+        <p className="text-slate-600 leading-relaxed max-w-prose">{step.description}</p>
       </div>
     </motion.div>
   );

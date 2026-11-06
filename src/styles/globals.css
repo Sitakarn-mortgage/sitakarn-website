@@ -69,22 +69,22 @@
   --font-body:    "Inter", "Helvetica Neue", Arial, sans-serif;
   --font-mono:    "JetBrains Mono", "Fira Code", monospace;
 
-  /* ── Shadows (warm-tinted) ────────────────────────────────────────────── */
-  --shadow-xs:      0 1px 2px 0 rgba(45, 37, 33, 0.06);
-  --shadow-sm:      0 1px 3px 0 rgba(45, 37, 33, 0.09), 0 1px 2px -1px rgba(45, 37, 33, 0.05);
-  --shadow-base:    0 4px 6px -1px rgba(45, 37, 33, 0.08), 0 2px 4px -2px rgba(45, 37, 33, 0.04);
-  --shadow-md:      0 8px 16px -4px rgba(45, 37, 33, 0.11), 0 4px 6px -2px rgba(45, 37, 33, 0.05);
-  --shadow-lg:      0 16px 32px -8px rgba(45, 37, 33, 0.13), 0 8px 16px -4px rgba(45, 37, 33, 0.06);
+  /* ── Shadows (warm-tinted architectural elevation) ────────────────────── */
+  --shadow-xs:      0 1px 2px 0 rgba(45, 37, 33, 0.05);
+  --shadow-sm:      0 2px 4px -1px rgba(45, 37, 33, 0.07), 0 1px 2px -1px rgba(45, 37, 33, 0.04);
+  --shadow-base:    0 4px 8px -2px rgba(45, 37, 33, 0.08), 0 2px 4px -2px rgba(45, 37, 33, 0.04);
+  --shadow-md:      0 10px 20px -5px rgba(45, 37, 33, 0.10), 0 4px 6px -2px rgba(45, 37, 33, 0.04);
+  --shadow-lg:      0 18px 36px -8px rgba(45, 37, 33, 0.12), 0 8px 16px -4px rgba(45, 37, 33, 0.05);
   --shadow-xl:      0 24px 48px -12px rgba(45, 37, 33, 0.16);
-  --shadow-gold:    0 4px 20px -2px rgba(197, 157, 12, 0.32);
-  --shadow-brick:   0 8px 24px -4px rgba(169, 4, 21, 0.32);
-  --shadow-navy:    0 8px 24px -4px rgba(13, 27, 94, 0.28);
+  --shadow-gold:    0 4px 20px -2px rgba(197, 157, 12, 0.28);
+  --shadow-brick:   0 8px 24px -4px rgba(169, 4, 21, 0.28);
+  --shadow-navy:    0 8px 24px -4px rgba(13, 27, 94, 0.25);
 }
 
-/* ─── Dark Mode ───────────────────────────────────────────────────────────── */
-[data-theme="dark"] {
-  --color-offwhite:  #1A1410;
-  --color-lightgray: #2D2521;
+/* The site is a light-only design. The previous [data-theme="dark"] override remapped
+   `offwhite` to near-black, which turned inputs and callouts black on dark-mode systems. */
+:root {
+  color-scheme: light;
 }
 
 /* ─── Global Reset & Base ─────────────────────────────────────────────────── */
@@ -105,6 +105,7 @@
     text-rendering: optimizeLegibility;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
   }
 
   body {
@@ -120,21 +121,23 @@
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-display);
     font-weight: 700;
-    line-height: 1.2;
+    line-height: 1.18;
     color: var(--color-navy-700);
     letter-spacing: -0.02em;
+    text-wrap: balance;
   }
 
-  h1 { font-size: clamp(2rem, 4vw, 3.5rem); }
-  h2 { font-size: clamp(1.5rem, 3vw, 2.5rem); }
-  h3 { font-size: clamp(1.25rem, 2.5vw, 1.875rem); }
+  h1 { font-size: clamp(1.875rem, 3.8vw + 0.5rem, 3.375rem); }
+  h2 { font-size: clamp(1.5rem, 2.8vw + 0.4rem, 2.5rem); }
+  h3 { font-size: clamp(1.25rem, 2vw + 0.25rem, 1.75rem); }
   h4 { font-size: 1.25rem; }
   h5 { font-size: 1.125rem; }
   h6 { font-size: 1rem; }
 
   p {
-    line-height: 1.75;
+    line-height: 1.7;
     color: var(--color-slate-600);
+    text-wrap: pretty;
   }
 
   a {
@@ -162,7 +165,7 @@
 
 /* ─── Utility Classes ─────────────────────────────────────────────────────── */
 
-/* The "Double Rule" — signature design element */
+/* The "Double Rule" — signature editorial motif */
 .double-rule {
   display: flex;
   flex-direction: column;
@@ -189,8 +192,7 @@
 /*
  * Eyebrow labels:
  *   - On light bg  → gold-600
- *   - On dark navy → white (via text-white class in component)
- *   - On brick/red → white
+ *   - On dark navy → white or brick-200 (never gold on dark navy)
  */
 .eyebrow {
   font-family: var(--font-mono);
@@ -199,6 +201,15 @@
   letter-spacing: 0.14em;
   text-transform: uppercase;
   color: var(--color-gold-600);
+}
+
+/* Hide scrollbars on horizontal pill/tab strips while preserving touch scroll */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 /* Smooth image loading */

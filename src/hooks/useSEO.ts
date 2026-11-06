@@ -5,7 +5,7 @@
 
 import { useEffect } from 'react';
 import type { SEOProps } from '@/types';
-import { company } from '@/config/company';
+import { useCompanyInfo } from '@/hooks/useGlobalContent';
 
 export function useSEO({
   title,
@@ -15,9 +15,11 @@ export function useSEO({
   ogType = 'website',
   noIndex = false,
 }: SEOProps): void {
+  const companyInfo = useCompanyInfo();
+
   useEffect(() => {
     // Title
-    const fullTitle = `${title} | ${company.name}`;
+    const fullTitle = `${title} | ${companyInfo.name}`;
     document.title = fullTitle;
 
     // Helper to upsert a <meta> tag
@@ -47,7 +49,7 @@ export function useSEO({
     setMeta('meta[property="og:title"]', fullTitle);
     setMeta('meta[property="og:description"]', description);
     setMeta('meta[property="og:type"]', ogType);
-    setMeta('meta[property="og:site_name"]', company.fullName);
+    setMeta('meta[property="og:site_name"]', companyInfo.fullName);
 
     if (ogImage) {
       setMeta('meta[property="og:image"]', ogImage);
@@ -65,7 +67,7 @@ export function useSEO({
     }
 
     return () => {
-      document.title = company.fullName;
+      document.title = companyInfo.fullName;
     };
-  }, [title, description, canonical, ogImage, ogType, noIndex]);
+  }, [title, description, canonical, ogImage, ogType, noIndex, companyInfo.name, companyInfo.fullName]);
 }
